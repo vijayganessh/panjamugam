@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panjamugam Residency — New Entry</title>
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --saffron:#E8610A;--saffron-light:#FFF0E8;--saffron-dark:#B84A06;
+    --gold:#C8860A;--gold-light:#FFF8E1;
+    --ink:#1A1208;--ink-2:#3D2E1A;--ink-3:#6B5640;
+    --stone:#F5EFE6;--stone-2:#EDE4D8;--stone-3:#D8CCBB;
+    --cream:#FDFAF6;--green:#1E7A4A;--red:#C0392B;--radius:12px;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+  header{background:var(--ink);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+  .logo{display:flex;align-items:center;gap:12px;}
+  .logo-icon{width:36px;height:36px;background:var(--saffron);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:18px;color:#fff;}
+  .logo-text{font-family:Georgia,serif;font-size:17px;color:#fff;line-height:1.2;}
+  .logo-sub{font-size:11px;font-weight:300;color:#888;display:block;}
+  .nav-links{display:flex;gap:4px;}
+  .nav-link{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;color:#aaa;text-decoration:none;transition:all 0.15s;border:1px solid transparent;}
+  .nav-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .nav-link.active{color:#fff;background:var(--saffron);border-color:var(--saffron-dark);}
+  .status-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:#888;}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:#888;animation:pulse 2s infinite;}
+  .status-dot.connected{background:#34c759;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+  .page{max-width:760px;margin:0 auto;padding:2rem;}
+  .page-title{font-family:Georgia,serif;font-size:28px;font-weight:400;margin-bottom:4px;}
+  .page-sub{font-size:14px;color:var(--ink-3);margin-bottom:2rem;}
+
+  /* SUCCESS */
+  .success-panel{display:none;background:var(--green);color:#fff;border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+  .success-panel.show{display:block;animation:fadeIn 0.3s;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+  .success-icon{font-size:48px;margin-bottom:12px;}
+  .success-title{font-family:Georgia,serif;font-size:24px;margin-bottom:6px;}
+  .success-sub{font-size:14px;opacity:0.9;}
+  .success-actions{display:flex;gap:12px;justify-content:center;margin-top:1.25rem;}
+  .success-btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-decoration:none;transition:all 0.15s;}
+  .success-btn.again{background:rgba(255,255,255,0.2);color:#fff;border:1.5px solid rgba(255,255,255,0.4);}
+  .success-btn.dashboard{background:#fff;color:var(--green);border:none;}
+
+  /* TYPE CARDS */
+  .type-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem;}
+  .type-card{border:2px solid var(--stone-3);border-radius:var(--radius);padding:1.25rem;cursor:pointer;transition:all 0.18s;background:#fff;text-align:center;}
+  .type-card.active-income{border-color:var(--green);background:var(--green);color:#fff;}
+  .type-card.active-expense{border-color:var(--red);background:var(--red);color:#fff;}
+  .type-icon{font-size:28px;margin-bottom:6px;}
+  .type-label{font-size:15px;font-weight:600;}
+  .type-desc{font-size:12px;opacity:0.7;margin-top:3px;}
+
+  /* FORM */
+  .form-card{background:#fff;border:1px solid var(--stone-3);border-radius:var(--radius);overflow:hidden;margin-bottom:1.25rem;}
+  .form-sec-title{padding:0.9rem 1.5rem;background:var(--stone);border-bottom:1px solid var(--stone-3);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);}
+  .form-inner{padding:1.5rem;}
+  .field{margin-bottom:1.1rem;}
+  .field:last-child{margin-bottom:0;}
+  .field label{display:block;font-size:11px;font-weight:700;letter-spacing:0.05em;color:var(--ink-3);text-transform:uppercase;margin-bottom:7px;}
+  .field input,.field select{width:100%;padding:11px 14px;border:1.5px solid var(--stone-3);border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--ink);background:var(--stone);outline:none;transition:border-color 0.15s,background 0.15s;appearance:none;}
+  .field input:focus,.field select:focus{border-color:var(--saffron);background:#fff;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  /* AMOUNT */
+  .amount-wrap{position:relative;}
+  .amount-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:500;color:var(--ink-3);font-family:'Courier New',monospace;}
+  .amount-inp{padding-left:30px!important;font-size:22px!important;font-family:'Courier New',monospace!important;font-weight:500!important;}
+
+  /* QUICK PILLS */
+  .quick-pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
+  .quick-pill{padding:5px 13px;background:var(--stone);border:1.5px solid var(--stone-3);border-radius:20px;font-size:12px;cursor:pointer;color:var(--ink-2);transition:all 0.15s;}
+  .quick-pill:hover{background:var(--saffron-light);border-color:var(--saffron);color:var(--saffron-dark);}
+
+  /* SUGGESTIONS */
+  .desc-wrap{position:relative;}
+  #suggestions{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--stone-3);border-radius:8px;z-index:50;max-height:180px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.1);}
+  .sugg-item{padding:10px 14px;cursor:pointer;font-size:13px;color:var(--ink);}
+  .sugg-item:hover{background:var(--stone);}
+
+  /* CATEGORY PILLS */
+  .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+  .cat-btn{padding:9px 8px;border:1.5px solid var(--stone-3);border-radius:8px;background:var(--stone);font-size:12px;font-weight:500;cursor:pointer;color:var(--ink-2);transition:all 0.15s;text-align:center;}
+  .cat-btn:hover{border-color:var(--saffron);background:var(--saffron-light);}
+  .cat-btn.selected{border-color:var(--saffron);background:var(--saffron);color:#fff;}
+  .cat-btn.income-cat{border-color:var(--green);background:var(--green);color:#fff;}
+
+  /* ROOM GRID */
+  .room-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+  .room-btn{padding:11px 4px;border:1.5px solid var(--stone-3);border-radius:8px;background:var(--stone);font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-2);font-family:'Courier New',monospace;transition:all 0.15s;text-align:center;}
+  .room-btn:hover{border-color:var(--saffron);background:var(--saffron-light);}
+  .room-btn.selected{border-color:var(--saffron);background:var(--saffron);color:#fff;}
+
+  /* SUBMIT */
+  .submit-row{display:flex;gap:12px;align-items:center;}
+  .submit-btn{flex:1;padding:14px;background:var(--saffron);color:#fff;border:none;border-radius:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .submit-btn.income-btn{background:var(--green);}
+  .submit-btn.income-btn:hover{background:#175e38;}
+  .submit-btn.expense-btn{background:var(--red);}
+  .submit-btn.expense-btn:hover{background:#a02f24;}
+  .submit-btn:disabled{background:var(--stone-3);cursor:not-allowed;}
+  .reset-btn{padding:14px 20px;background:var(--stone);color:var(--ink-3);border:1.5px solid var(--stone-3);border-radius:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;cursor:pointer;}
+  .reset-btn:hover{background:var(--stone-2);}
+  .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* MANAGER TIP */
+  .tip-box{background:var(--gold-light);border:1px solid #E8D08A;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:13px;color:var(--ink-2);line-height:1.6;}
+  .tip-box strong{color:var(--gold);}
+
+  @media(max-width:600px){.page{padding:1rem;}header{padding:0 1rem;}.nav-links{display:none;}.field-row{grid-template-columns:1fr;}.cat-grid{grid-template-columns:repeat(2,1fr);}}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1E7A4A;color:#fff;padding:14px 24px;border-radius:50px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.2);}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">PR</div>
+    <div class="logo-text">Panjamugam Residency<span class="logo-sub">2026–27 Accounts</span></div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="/dashboard">Rooms</a>
+    <a class="nav-link" href="/dashboard">Dashboard</a>
+    <a class="nav-link active" href="/entry">New Entry</a>
+    <a class="nav-link" href="/demo">How to Use</a>
+  </div>
+  <div class="status-pill">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Connecting…</span>
+  </div>
+</header>
+
+<div class="page">
+  <h1 class="page-title">New Entry</h1>
+  <p class="page-sub">Add income or expense to the Excel ledger</p>
+
+  <div class="tip-box">
+    💡 <strong>Quick tip:</strong> Select the type first → pick a category → fill the amount. For room bookings, tap the room number too. Not sure which category? Check the <a href="/demo" style="color:var(--gold);font-weight:600;">How to Use</a> guide.
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-panel" id="successPanel">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Entry Saved!</div>
+    <div class="success-sub" id="successMsg"></div>
+    <div class="success-actions">
+      <button class="success-btn again" onclick="resetAndNew()">Add Another</button>
+      <a class="success-btn dashboard" href="/dashboard">View Dashboard</a>
+    </div>
+  </div>
+
+  <!-- TYPE -->
+  <div class="type-row">
+    <div class="type-card active-income" id="cardIncome" onclick="setType('income')">
+      <div class="type-icon">💰</div>
+      <div class="type-label">Income</div>
+      <div class="type-desc">Room booking, advance, other</div>
+    </div>
+    <div class="type-card" id="cardExpense" onclick="setType('expense')">
+      <div class="type-icon">💸</div>
+      <div class="type-label">Expense</div>
+      <div class="type-desc">Staff, bills, your drawing</div>
+    </div>
+  </div>
+
+  <!-- CATEGORY -->
+  <div class="form-card">
+    <div class="form-sec-title">Category <span style="font-weight:400;text-transform:none;">(tap to select)</span></div>
+    <div class="form-inner">
+      <div class="cat-grid" id="incomeCats">
+        <button class="cat-btn income-cat selected" onclick="setCat('Room Income')">🛏 Room Income</button>
+        <button class="cat-btn" onclick="setCat('Other Income')">💼 Other Income</button>
+      </div>
+      <div class="cat-grid" id="expenseCats" style="display:none;">
+        <button class="cat-btn" onclick="setCat('Staff Salary')">👤 Staff Salary</button>
+        <button class="cat-btn" onclick="setCat('Manager Commission')">📊 Mgr Commission</button>
+        <button class="cat-btn" onclick="setCat('Staff Payment')">💵 Staff Payment</button>
+        <button class="cat-btn" onclick="setCat('Salary Advance')">⏩ Salary Advance</button>
+        <button class="cat-btn" onclick="setCat('Electricity')">⚡ Electricity</button>
+        <button class="cat-btn" onclick="setCat('Water')">💧 Water</button>
+        <button class="cat-btn" onclick="setCat('Telecom')">📡 Telecom</button>
+        <button class="cat-btn" onclick="setCat('Laundry')">👕 Laundry</button>
+        <button class="cat-btn" onclick="setCat('Cleaning')">🧹 Cleaning</button>
+        <button class="cat-btn" onclick="setCat('Maintenance')">🔧 Maintenance</button>
+        <button class="cat-btn" onclick="setCat('Linen')">🛏 Linen</button>
+        <button class="cat-btn" onclick="setCat('Pooja')">🪔 Pooja</button>
+        <button class="cat-btn" onclick="setCat('Owner Drawing')" style="border-color:var(--saffron);color:var(--saffron-dark);background:var(--saffron-light);">💰 Owner Drawing</button>
+        <button class="cat-btn" onclick="setCat('Operations')">⚙️ Operations</button>
+        <button class="cat-btn" onclick="setCat('Other')">📦 Other</button>
+      </div>
+      <input type="hidden" id="entryCategory" value="Room Income">
+    </div>
+  </div>
+
+  <!-- DETAILS -->
+  <div class="form-card">
+    <div class="form-sec-title">Entry Details</div>
+    <div class="form-inner">
+      <div class="field-row">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="entryDate">
+        </div>
+        <div class="field">
+          <label>Amount (₹)</label>
+          <div class="amount-wrap">
+            <span class="amount-prefix">₹</span>
+            <input type="number" id="entryAmount" class="amount-inp" placeholder="0" min="0" step="50">
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <div class="quick-pills" id="quickIncome">
+          <span class="quick-pill" onclick="setDesc('Room Book - AC')">AC Room</span>
+          <span class="quick-pill" onclick="setDesc('Room Book - Non AC')">Non AC Room</span>
+          <span class="quick-pill" onclick="setDesc('Room Book 2 Nos')">2 Rooms</span>
+          <span class="quick-pill" onclick="setDesc('Room Book 3 Nos')">3 Rooms</span>
+          <span class="quick-pill" onclick="setDesc('Referesh')">Refresh</span>
+          <span class="quick-pill" onclick="setDesc('Only Bath')">Bath only</span>
+          <span class="quick-pill" onclick="setDesc('Room Book Advance')">Advance</span>
+          <span class="quick-pill" onclick="setDesc('Room Book - Ext')">Extension</span>
+        </div>
+        <div class="quick-pills" id="quickExpense" style="display:none;">
+          <span class="quick-pill" onclick="setDesc('Mr Krishnan')">Mr Krishnan</span>
+          <span class="quick-pill" onclick="setDesc('Mr Kamalakanan')">Mr Kamal</span>
+          <span class="quick-pill" onclick="setDesc('Chakaravathi')">Chakaravathi</span>
+          <span class="quick-pill" onclick="setDesc('Valli')">Valli</span>
+          <span class="quick-pill" onclick="setDesc('Rajesh')">Rajesh</span>
+          <span class="quick-pill" onclick="setDesc('EB Bill')">EB Bill</span>
+          <span class="quick-pill" onclick="setDesc('Water Can')">Water Can</span>
+          <span class="quick-pill" onclick="setDesc('Dhobi Bedsheet')">Dhobi</span>
+          <span class="quick-pill" onclick="setDesc('Dry Cleaning Charge')">Dry Clean</span>
+          <span class="quick-pill" onclick="setDesc('Jio Air Fiber')">Jio</span>
+          <span class="quick-pill" onclick="setDesc('Cable TV Charge')">Cable TV</span>
+          <span class="quick-pill" onclick="setDesc('Cleaning Material')">Cleaning</span>
+          <span class="quick-pill" onclick="setDesc('To Vijay')">To Vijay</span>
+          <span class="quick-pill" onclick="setDesc('Manager Commission 10%')">Mgr Commission</span>
+        </div>
+        <div class="desc-wrap">
+          <input type="text" id="entryDesc" placeholder="Type or pick from above…" autocomplete="off"
+            oninput="filterSugg(this.value)" onfocus="showSugg()" onblur="hideSugg()">
+          <div id="suggestions"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Payment Mode</label>
+          <select id="entryMode">
+            <option value="">Select mode…</option>
+            <option>Cash</option>
+            <option>Online</option>
+            <option>Cash/Online</option>
+            <option>UPI</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Extra Note <span style="font-weight:400;text-transform:none;">(optional)</span></label>
+          <input type="text" id="entryNote" placeholder="e.g. 2 nights stay">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOM (income only) -->
+  <div class="form-card" id="roomCard">
+    <div class="form-sec-title">Room Number <span style="font-weight:400;text-transform:none;">(tap to select)</span></div>
+    <div class="form-inner">
+      <div class="room-grid">
+        <button class="room-btn" onclick="toggleRoom('101')">101</button>
+        <button class="room-btn" onclick="toggleRoom('102')">102</button>
+        <button class="room-btn" onclick="toggleRoom('103')">103</button>
+        <button class="room-btn" onclick="toggleRoom('104')">104</button>
+        <button class="room-btn" onclick="toggleRoom('105')">105</button>
+        <button class="room-btn" onclick="toggleRoom('201')">201</button>
+        <button class="room-btn" onclick="toggleRoom('202')">202</button>
+        <button class="room-btn" onclick="toggleRoom('203')">203</button>
+        <button class="room-btn" onclick="toggleRoom('204')">204</button>
+        <button class="room-btn" onclick="toggleRoom('205')">205</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-row">
+    <button class="submit-btn income-btn" id="submitBtn" onclick="submitEntry()">
+      <span id="submitText">Save Income Entry</span>
+      <div class="spinner" id="submitSpinner"></div>
+    </button>
+    <button class="reset-btn" onclick="resetForm()">Clear</button>
+  </div>
+</div>
+
+<script>
+let currentType='income', selectedRooms=[], selectedCat='Room Income';
+const DESCRIPTIONS=['Room Book - AC','Room Book - Non AC','Room Book 2 Nos','Room Book 3 Nos','Room Book - Ext','Room Book Advance','Referesh','Only Bath','Mr Krishnan','Mr Kamalakanan','Chakaravathi','Valli','Rajesh','Vijaykaran','EB Bill','Water Can','Dhobi Bedsheet','Dry Cleaning Charge','Jio Air Fiber','Cable TV Charge','Cleaning Material','To Vijay','Manager Commission 10%','Rajesh Salary','Valli Salary','Krishnan Salary'];
+
+window.onload=()=>{
+  document.getElementById('entryDate').value=new Date().toISOString().split('T')[0];
+  apiGet('getSummary').then(r=>r.json()).then(d=>{
+    if(d.success){document.getElementById('statusDot').className='status-dot connected';document.getElementById('statusText').textContent='Connected to Excel';}
+  }).catch(()=>document.getElementById('statusText').textContent='Offline');
+};
+
+function setType(type){
+  currentType=type;
+  document.getElementById('cardIncome').className='type-card'+(type==='income'?' active-income':'');
+  document.getElementById('cardExpense').className='type-card'+(type==='expense'?' active-expense':'');
+  document.getElementById('quickIncome').style.display=type==='income'?'flex':'none';
+  document.getElementById('quickExpense').style.display=type==='expense'?'flex':'none';
+  document.getElementById('incomeCats').style.display=type==='income'?'grid':'none';
+  document.getElementById('expenseCats').style.display=type==='expense'?'grid':'none';
+  document.getElementById('roomCard').style.display=type==='income'?'block':'none';
+  const btn=document.getElementById('submitBtn');
+  btn.className='submit-btn '+(type==='income'?'income-btn':'expense-btn');
+  document.getElementById('submitText').textContent=type==='income'?'Save Income Entry':'Save Expense Entry';
+  selectedRooms=[];
+  document.querySelectorAll('.room-btn').forEach(b=>b.classList.remove('selected'));
+  // Auto-select first category
+  if(type==='income') setCat('Room Income');
+  else setCat('Staff Salary');
+}
+
+function setCat(cat){
+  selectedCat=cat;
+  document.getElementById('entryCategory').value=cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.classList.remove('selected');
+    if(b.textContent.includes(cat.replace(/[^a-zA-Z ]/g,'').trim())||b.onclick.toString().includes(`'${cat}'`)){
+      b.classList.add('selected');
+    }
+  });
+}
+
+function setDesc(d){document.getElementById('entryDesc').value=d;hideSugg();}
+
+function toggleRoom(room){
+  const idx=selectedRooms.indexOf(room);
+  if(idx===-1)selectedRooms.push(room);else selectedRooms.splice(idx,1);
+  document.querySelectorAll('.room-btn').forEach(b=>b.classList.toggle('selected',selectedRooms.includes(b.textContent.trim())));
+}
+
+function resetForm(){
+  document.getElementById('entryDesc').value='';
+  document.getElementById('entryAmount').value='';
+  document.getElementById('entryMode').value='';
+  document.getElementById('entryNote').value='';
+  document.getElementById('entryDate').value=new Date().toISOString().split('T')[0];
+  selectedRooms=[];
+  document.querySelectorAll('.room-btn').forEach(b=>b.classList.remove('selected'));
+}
+
+function resetAndNew(){resetForm();}
+
+async function submitEntry(){
+  const date=document.getElementById('entryDate').value;
+  const desc=document.getElementById('entryDesc').value.trim();
+  const amount=parseFloat(document.getElementById('entryAmount').value);
+  const mode=document.getElementById('entryMode').value;
+  const note=document.getElementById('entryNote').value.trim();
+  const category=document.getElementById('entryCategory').value;
+
+  if(!date){alert('Please select a date');return;}
+  if(!desc){alert('Please enter a description');return;}
+  if(!amount||amount<=0){alert('Please enter a valid amount');return;}
+  if(!category){alert('Please select a category');return;}
+
+  const fullDesc=note?`${desc} - ${note}`:desc;
+  document.getElementById('submitBtn').disabled=true;
+  document.getElementById('submitSpinner').style.display='block';
+  document.getElementById('submitText').textContent='Saving…';
+
+  try{
+    const res=await fetch('/api/add',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        date,description:fullDesc,
+        income:currentType==='income'?amount:null,
+        expense:currentType==='expense'?amount:null,
+        mode,room:selectedRooms.join(', '),
+        count:selectedRooms.length,
+        category
+      })
+    });
+    const data=await res.json();
+    if(data.success){
+      showToast(`✅ Saved! ₹${amount.toLocaleString('en-IN')} ${currentType} — "${fullDesc}"`);
+      resetForm();
+    }else{alert('Error: '+data.error);}
+  }catch(e){alert('Cannot reach server. Make sure app.py is running.');}
+
+  document.getElementById('submitBtn').disabled=false;
+  document.getElementById('submitSpinner').style.display='none';
+  document.getElementById('submitText').textContent=currentType==='income'?'Save Income Entry':'Save Expense Entry';
+}
+
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show';
+  setTimeout(()=>t.className='toast',3000);
+}
+function filterSugg(q){
+  if(!q){hideSugg();return;}
+  const matches=DESCRIPTIONS.filter(d=>d.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  const box=document.getElementById('suggestions');
+  if(!matches.length){hideSugg();return;}
+  box.innerHTML=matches.map(m=>`<div class="sugg-item" onmousedown="setDesc('${m}')">${m}</div>`).join('');
+  box.style.display='block';
+}
+function showSugg(){filterSugg(document.getElementById('entryDesc').value);}
+function hideSugg(){setTimeout(()=>document.getElementById('suggestions').style.display='none',150);}
+</script>
+
+<div class="toast" id="toast"></div>
+</body>
+</html>

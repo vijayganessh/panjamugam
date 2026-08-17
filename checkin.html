@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Guest Check-in — Panjamugam Residency</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --saffron:#E8610A;--saffron-dark:#B84A06;
+    --ink:#1A1208;--ink-3:#6B5640;
+    --stone:#F5EFE6;--stone-2:#EDE4D8;--stone-3:#D8CCBB;
+    --cream:#FDFAF6;--green:#1E7A4A;--green-light:#E8F5EE;
+    --red:#C0392B;--red-light:#FDEEEC;
+    --purple:#7C3AED;--purple-light:#EDE9FE;
+    --amber:#D97706;--blue:#1A73E8;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+
+  .header{background:var(--ink);padding:1rem 1.5rem;display:flex;align-items:center;gap:12px;}
+  .logo-icon{width:38px;height:38px;background:var(--saffron);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;}
+  .header h1{font-size:18px;color:#fff;font-weight:600;}
+  .header p{font-size:12px;color:#888;margin-top:1px;}
+
+  .wrap{max-width:580px;margin:0 auto;padding:1.5rem;}
+
+  /* STEP INDICATOR */
+  .steps{display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;}
+  .step{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--stone-3);}
+  .step.active{color:var(--saffron);}
+  .step.done{color:var(--green);}
+  .step-num{width:26px;height:26px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+  .step-divider{flex:1;height:2px;background:var(--stone-3);}
+  .step-divider.done{background:var(--green);}
+
+  /* SECTION */
+  .section-title{font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;}
+
+  /* ROOM GRID */
+  .room-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1.5rem;}
+  .room-btn{padding:14px 6px;border:2px solid var(--stone-3);border-radius:10px;background:#fff;font-size:15px;font-weight:700;cursor:pointer;color:var(--ink);text-align:center;transition:all 0.15s;}
+  .room-btn:hover,.room-btn:active{border-color:var(--saffron);background:var(--saffron);color:#fff;}
+  .room-btn.occupied{background:#FFF5F5;border-color:#F5B8B3;color:var(--red);cursor:not-allowed;font-size:12px;}
+  .room-btn.selected{border-color:var(--saffron);background:var(--saffron);color:#fff;}
+  .floor-lbl{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;margin-top:4px;}
+
+  /* GUEST FORM */
+  .form-section{background:#fff;border:1px solid var(--stone-3);border-radius:12px;overflow:hidden;margin-bottom:1rem;}
+  .form-section-head{padding:0.9rem 1.25rem;background:var(--stone);border-bottom:1px solid var(--stone-3);}
+  .form-section-head h3{font-size:14px;font-weight:700;color:var(--ink);}
+  .form-section-head p{font-size:12px;color:var(--ink-3);margin-top:2px;}
+  .form-inner{padding:1.25rem;}
+  .field{margin-bottom:1rem;}
+  .field:last-child{margin-bottom:0;}
+  .field label{display:block;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px;}
+  .field input,.field select{width:100%;padding:13px 14px;border:2px solid var(--stone-3);border-radius:9px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:var(--ink);background:var(--stone);outline:none;-webkit-appearance:none;}
+  .field input:focus,.field select:focus{border-color:var(--saffron);background:#fff;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .hint{font-size:11px;color:var(--ink-3);margin-top:4px;}
+  .req{color:var(--red);}
+
+  /* RETURNING GUEST */
+  .returning-box{background:var(--purple-light);border:1.5px solid #C4B5FD;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;display:none;}
+  .returning-box.show{display:block;}
+  .returning-box strong{color:var(--purple);display:block;margin-bottom:3px;}
+  .returning-box span{font-size:13px;color:var(--ink-3);}
+
+  /* SELECTED ROOM BANNER */
+  .room-banner{background:var(--saffron);color:#fff;border-radius:10px;padding:0.9rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;}
+  .room-banner-left strong{font-size:18px;font-weight:700;}
+  .room-banner-left span{font-size:13px;opacity:0.85;display:block;margin-top:1px;}
+  .change-room-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.5);color:#fff;padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;}
+
+  /* PRIVACY */
+  .privacy{background:var(--stone);border-radius:9px;padding:0.9rem 1rem;font-size:12px;color:var(--ink-3);line-height:1.6;margin-bottom:1rem;display:flex;gap:8px;}
+
+  /* BUTTONS */
+  .btn-row{display:flex;flex-direction:column;gap:10px;margin-bottom:2rem;}
+  .btn-submit{width:100%;padding:15px;background:var(--green);color:#fff;border:none;border-radius:11px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-submit:disabled{background:var(--stone-3);cursor:not-allowed;}
+  .btn-cancel{width:100%;padding:13px;background:transparent;color:var(--ink-3);border:2px solid var(--stone-3);border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;}
+  .btn-cancel:hover{background:var(--stone);}
+  .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* SUCCESS */
+  .success-wrap{text-align:center;padding:2rem 0;}
+  .success-emoji{font-size:64px;margin-bottom:1rem;}
+  .success-wrap h2{font-size:26px;font-weight:700;margin-bottom:8px;}
+  .success-wrap p{font-size:14px;color:var(--ink-3);margin-bottom:1.5rem;line-height:1.6;}
+  .success-card{background:#fff;border:1px solid var(--stone-3);border-radius:12px;padding:1.25rem;text-align:left;margin-bottom:1.25rem;}
+  .success-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--stone-2);font-size:14px;}
+  .success-row:last-child{border-bottom:none;}
+  .success-row-lbl{color:var(--ink-3);}
+  .success-row-val{font-weight:600;}
+
+  /* MESSAGE BUTTONS */
+  .msg-title{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;}
+  .msg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+  .msg-btn{padding:14px;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s;}
+  .msg-btn.wa{background:#25D366;color:#fff;}
+  .msg-btn.sms{background:var(--blue);color:#fff;}
+  .msg-note{font-size:12px;color:var(--ink-3);text-align:center;margin-bottom:1.5rem;}
+  .btn-new{width:100%;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;}
+
+  /* HIDDEN */
+  .hidden{display:none!important;}
+
+  @media(max-width:400px){.room-grid{grid-template-columns:repeat(5,1fr);}.field-row{grid-template-columns:1fr;}}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-icon">PR</div>
+  <div style="flex:1;">
+    <h1>Panjamugam Residency</h1>
+    <p>Guest Check-in · Tiruvannamalai</p>
+  </div>
+  <a href="/" style="padding:8px 16px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Home</a>
+</div>
+
+<div class="wrap">
+
+  <!-- STEP INDICATOR -->
+  <div class="steps" id="stepIndicator">
+    <div class="step active" id="step1"><div class="step-num">1</div>Room</div>
+    <div class="step-divider" id="div1"></div>
+    <div class="step" id="step2"><div class="step-num">2</div>Details</div>
+    <div class="step-divider" id="div2"></div>
+    <div class="step" id="step3"><div class="step-num">3</div>Done</div>
+  </div>
+
+  <!-- SCREEN 1: ROOM SELECTION -->
+  <div id="screen1">
+    <div class="floor-lbl">First Floor</div>
+    <div class="room-grid">
+      <button class="room-btn" id="btn-101" onclick="selectRoom('101')">101</button>
+      <button class="room-btn" id="btn-102" onclick="selectRoom('102')">102</button>
+      <button class="room-btn" id="btn-103" onclick="selectRoom('103')">103</button>
+      <button class="room-btn" id="btn-104" onclick="selectRoom('104')">104</button>
+      <button class="room-btn" id="btn-105" onclick="selectRoom('105')">105</button>
+    </div>
+    <div class="floor-lbl">Second Floor</div>
+    <div class="room-grid">
+      <button class="room-btn" id="btn-201" onclick="selectRoom('201')">201</button>
+      <button class="room-btn" id="btn-202" onclick="selectRoom('202')">202</button>
+      <button class="room-btn" id="btn-203" onclick="selectRoom('203')">203</button>
+      <button class="room-btn" id="btn-204" onclick="selectRoom('204')">204</button>
+      <button class="room-btn" id="btn-205" onclick="selectRoom('205')">205</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: GUEST FORM -->
+  <div id="screen2" class="hidden">
+
+    <div class="room-banner">
+      <div class="room-banner-left">
+        <strong id="selectedRoomLabel">Room 101</strong>
+        <span>Fill guest details below</span>
+      </div>
+      <button class="change-room-btn" onclick="goBack()">← Change</button>
+    </div>
+
+    <div class="returning-box" id="returningBox">
+      <strong>⭐ Returning Guest!</strong>
+      <span id="returningText">Details filled from last visit.</span>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-head">
+        <h3>Personal Details</h3>
+        <p>Guest fills this section</p>
+      </div>
+      <div class="form-inner">
+        <div class="field">
+          <label>Full Name <span class="req">*</span></label>
+          <input type="text" id="guestName" placeholder="Enter full name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label>Phone Number <span class="req">*</span></label>
+          <input type="tel" id="guestPhone" placeholder="10-digit mobile number" maxlength="10" autocomplete="tel" oninput="onPhoneInput(this.value)">
+          <div class="hint">We use this to recognise returning guests</div>
+        </div>
+        <div class="field">
+          <label>Address</label>
+          <input type="text" id="guestAddress" placeholder="City / District / State">
+        </div>
+        <div class="field">
+          <label>Aadhar Number</label>
+          <input type="text" id="guestAadhar" placeholder="XXXX XXXX XXXX" maxlength="14" oninput="fmtAadhar(this)">
+          <div class="hint">Required as per government regulations</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-head">
+        <h3>Stay Dates</h3>
+        <p>Staff fills this section</p>
+      </div>
+      <div class="form-inner">
+        <div class="field-row">
+          <div class="field">
+            <label>Check-in</label>
+            <input type="date" id="checkIn">
+          </div>
+          <div class="field">
+            <label>Check-out</label>
+            <input type="date" id="checkOut">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="privacy">
+      <span>🔒</span>
+      <span>Your details are collected for hotel records as required by law and stored securely.</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-submit" id="submitBtn" onclick="submitCheckin()">
+        <span id="submitText">✓ Complete Check-in</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+      <button class="btn-cancel" onclick="goBack()">✕ Cancel</button>
+    </div>
+
+  </div>
+
+  <!-- SCREEN 3: SUCCESS -->
+  <div id="screen3" class="hidden">
+    <div class="success-wrap">
+      <div class="success-emoji">🎉</div>
+      <h2>Check-in Complete!</h2>
+      <p id="successMsg">Welcome to Panjamugam Residency.<br>We hope you have a pleasant stay!</p>
+
+      <div class="returning-box show" id="successReturning" style="display:none;margin-bottom:1rem;">
+        <strong>⭐ Welcome back!</strong>
+        <span>Great to see you again at Panjamugam Residency!</span>
+      </div>
+
+      <div class="success-card" id="successCard"></div>
+
+      <div class="msg-title">Send Booking Confirmation</div>
+      <div class="msg-grid">
+        <button class="msg-btn wa" onclick="openWA()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </button>
+        <button class="msg-btn sms" onclick="openSMS()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          SMS
+        </button>
+      </div>
+      <div class="msg-note">Message is pre-written — just tap Send</div>
+
+      <button class="btn-new" onclick="resetAll()">← New Check-in</button>
+      <a href="/" style="display:block;width:100%;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:10px;">🏠 Go to Rooms Dashboard</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let selectedRoom = null;
+let waLink = '', smsLink = '';
+let roomsData = {};
+
+// On load — set today's date and try to get room statuses
+document.getElementById('checkIn').value = new Date().toISOString().split('T')[0];
+apiGet('getRooms').then(d=>{
+  if(d.success){
+    roomsData = d.rooms;
+    Object.entries(d.rooms).forEach(([id,room])=>{
+      if(room.status==='occupied'){
+        const b = document.getElementById('btn-'+id);
+        if(b){ b.className='room-btn occupied'; b.onclick=null; b.innerHTML=id+'<br><span style="font-size:10px;">Occupied</span>'; }
+      }
+    });
+  }
+}).catch(()=>{});
+
+function goToScreen(n) {
+  document.getElementById('screen1').className = n===1 ? '' : 'hidden';
+  document.getElementById('screen2').className = n===2 ? '' : 'hidden';
+  document.getElementById('screen3').className = n===3 ? '' : 'hidden';
+  // Update step indicators
+  [1,2,3].forEach(i=>{
+    const s = document.getElementById('step'+i);
+    s.className = 'step' + (i===n?' active':i<n?' done':'');
+  });
+  [1,2].forEach(i=>{
+    const d = document.getElementById('div'+i);
+    d.className = 'step-divider' + (i<n?' done':'');
+  });
+  window.scrollTo(0,0);
+}
+
+function selectRoom(id) {
+  selectedRoom = id;
+  document.getElementById('selectedRoomLabel').textContent = 'Room ' + id;
+  goToScreen(2);
+}
+
+function goBack() {
+  goToScreen(1);
+  document.getElementById('returningBox').className = 'returning-box';
+}
+
+// Aadhar formatting
+function fmtAadhar(inp) {
+  let v = inp.value.replace(/[^0-9]/g,'').slice(0,12);
+  inp.value = v.replace(/(\d{4})(?=\d)/g,'$1 ').trim();
+}
+
+// Phone lookup
+let phoneTimer = null;
+function onPhoneInput(val) {
+  clearTimeout(phoneTimer);
+  if(val.length===10) phoneTimer = setTimeout(()=>lookupPhone(val), 500);
+  else document.getElementById('returningBox').className = 'returning-box';
+}
+
+function lookupPhone(phone) {
+  apiGet('lookupGuest', {phone: phone})
+    .then(d=>{
+      if(d.success && d.found){
+        const g = d.guest;
+        if(g.name) document.getElementById('guestName').value = g.name;
+        if(g.address) document.getElementById('guestAddress').value = g.address;
+        if(g.aadhar) document.getElementById('guestAadhar').value = g.aadhar;
+        document.getElementById('returningText').textContent = (g.name||'Guest') + ' has visited ' + d.visits + ' time(s). Details filled automatically.';
+        document.getElementById('returningBox').className = 'returning-box show';
+      }
+    }).catch(()=>{});
+}
+
+async function submitCheckin() {
+  const name = document.getElementById('guestName').value.trim();
+  const phone = document.getElementById('guestPhone').value.trim();
+  if(!name){ alert('Please enter guest name'); return; }
+  if(!phone||phone.length<10){ alert('Please enter a valid 10-digit phone number'); return; }
+
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('submitText').textContent = 'Saving…';
+
+  try {
+    const r = await fetch('/api/checkin',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        room: selectedRoom, name, phone,
+        address: document.getElementById('guestAddress').value.trim(),
+        aadhar: document.getElementById('guestAadhar').value.trim(),
+        checked_in: document.getElementById('checkIn').value,
+        checked_out: document.getElementById('checkOut').value
+      })
+    });
+    const d = await r.json();
+    if(d.success){
+      showSuccess(d, name, phone);
+    } else {
+      alert('Error: ' + d.error);
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('submitText').textContent = '✓ Complete Check-in';
+    }
+  } catch(e){
+    alert('Cannot reach server. Make sure app.py is running.');
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('submitText').textContent = '✓ Complete Check-in';
+  }
+}
+
+function showSuccess(d, name, phone) {
+  const cin = document.getElementById('checkIn').value;
+  const cout = document.getElementById('checkOut').value;
+
+  // Format dates nicely
+  const fmtD = s => { try{ return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }catch(e){return s;} };
+
+  document.getElementById('successCard').innerHTML =
+    '<div class="success-row"><span class="success-row-lbl">Room</span><span class="success-row-val">Room '+selectedRoom+'</span></div>'+
+    '<div class="success-row"><span class="success-row-lbl">Guest</span><span class="success-row-val">'+name+'</span></div>'+
+    '<div class="success-row"><span class="success-row-lbl">Phone</span><span class="success-row-val">'+phone+'</span></div>'+
+    '<div class="success-row"><span class="success-row-lbl">Check-in</span><span class="success-row-val">'+(cin?fmtD(cin):'Today')+'</span></div>'+
+    '<div class="success-row"><span class="success-row-lbl">Check-out</span><span class="success-row-val">'+(cout?fmtD(cout):'Not set')+'</span></div>';
+
+  if(d.returning) document.getElementById('successReturning').style.display = 'block';
+
+  // Build message
+  const msg = 'Hello '+name+',\n\nYour room booking at Panjamugam Residency is confirmed!\n\nRoom: '+selectedRoom+'\nCheck-in: '+(cin?fmtD(cin):'Today')+'\nCheck-out: '+(cout?fmtD(cout):'To be confirmed')+'\n\nThank you for choosing us. We look forward to welcoming you!\n\n- Panjamugam Residency, Tiruvannamalai';
+  const enc = encodeURIComponent(msg);
+  const clean = phone.replace(/[^0-9]/g,'');
+  const india = clean.startsWith('91') ? clean : '91'+clean;
+  waLink = 'https://wa.me/'+india+'?text='+enc;
+  smsLink = 'sms:'+clean+'?body='+enc;
+
+  goToScreen(3);
+}
+
+function openWA(){ if(waLink) window.open(waLink,'_blank'); }
+function openSMS(){ if(smsLink) window.location.href=smsLink; }
+
+function resetAll(){
+  selectedRoom = null;
+  waLink = ''; smsLink = '';
+  document.getElementById('guestName').value='';
+  document.getElementById('guestPhone').value='';
+  document.getElementById('guestAddress').value='';
+  document.getElementById('guestAadhar').value='';
+  document.getElementById('checkOut').value='';
+  document.getElementById('checkIn').value=new Date().toISOString().split('T')[0];
+  document.getElementById('returningBox').className='returning-box';
+  document.getElementById('successReturning').style.display='none';
+  document.getElementById('submitBtn').disabled=false;
+  document.getElementById('spinner').style.display='none';
+  document.getElementById('submitText').textContent='✓ Complete Check-in';
+  goToScreen(1);
+}
+</script>
+</body>
+</html>

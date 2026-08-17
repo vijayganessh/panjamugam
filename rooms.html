@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panjamugam Residency - Rooms</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --saffron:#E8610A;--saffron-light:#FFF0E8;--saffron-dark:#B84A06;
+  --ink:#1A1208;--ink-2:#3D2E1A;--ink-3:#6B5640;
+  --stone:#F5EFE6;--stone-2:#EDE4D8;--stone-3:#D8CCBB;
+  --cream:#FDFAF6;
+  --green:#1E7A4A;--green-light:#E8F5EE;
+  --red:#C0392B;--red-light:#FDEEEC;
+  --amber:#D97706;--amber-light:#FEF3C7;
+  --blue:#1A73E8;--blue-light:#E8F0FE;
+  --purple:#7C3AED;--purple-light:#EDE9FE;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+
+/* HEADER */
+header{background:var(--ink);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:36px;height:36px;background:var(--saffron);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;}
+.logo-text{font-size:17px;color:#fff;font-weight:600;line-height:1.2;}
+.logo-sub{font-size:11px;font-weight:300;color:#888;display:block;}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;color:#aaa;text-decoration:none;transition:all 0.15s;border:1px solid transparent;}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+.nav-link.active{color:#fff;background:var(--saffron);border-color:var(--saffron-dark);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.checkin-btn{padding:8px 16px;background:var(--green);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;}
+.status-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:#888;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#888;animation:pulse 2s infinite;}
+.status-dot.connected{background:#34c759;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* PAGE */
+.page{max-width:1280px;margin:0 auto;padding:2rem;}
+
+/* SUMMARY */
+.summary-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:2rem;}
+.scard{background:#fff;border:1px solid var(--stone-3);border-radius:12px;padding:1rem 1.25rem;text-align:center;position:relative;overflow:hidden;}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.scard.total::before{background:var(--ink);}
+.scard.av::before{background:var(--green);}
+.scard.oc::before{background:var(--red);}
+.scard.cl::before{background:var(--amber);}
+.scard.re::before{background:var(--blue);}
+.scard-val{font-size:28px;font-weight:700;font-family:'Courier New',monospace;margin-bottom:4px;}
+.scard-val.g{color:var(--green);}
+.scard-val.r{color:var(--red);}
+.scard-val.a{color:var(--amber);}
+.scard-val.b{color:var(--blue);}
+.scard-label{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.05em;}
+
+/* LEGEND */
+.legend{display:flex;gap:20px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-3);font-weight:500;}
+.legend-dot{width:12px;height:12px;border-radius:3px;}
+
+/* FLOOR */
+.floor-label{font-size:20px;font-weight:600;color:var(--ink);margin-bottom:1rem;margin-top:1.5rem;display:flex;align-items:center;gap:10px;}
+.floor-label:first-of-type{margin-top:0;}
+.floor-badge{font-size:11px;font-weight:700;background:var(--stone);color:var(--ink-3);padding:3px 10px;border-radius:20px;}
+
+/* ROOM GRID */
+.rooms-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:0.5rem;}
+
+/* ROOM CARD */
+.room-card{background:#fff;border:2px solid var(--stone-3);border-radius:14px;padding:1.25rem;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.room-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;transition:background 0.2s;}
+.room-card.available{border-color:#B8E0C8;}
+.room-card.available::before{background:var(--green);}
+.room-card.occupied{border-color:#F5B8B3;}
+.room-card.occupied::before{background:var(--red);}
+.room-card.cleaning{border-color:#FCD98A;}
+.room-card.cleaning::before{background:var(--amber);}
+.room-card.reserved{border-color:#93C3F5;}
+.room-card.reserved::before{background:var(--blue);}
+.room-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.1);}
+.room-number{font-family:'Courier New',monospace;font-size:28px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.room-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:10px;}
+.room-badge.available{background:var(--green-light);color:var(--green);}
+.room-badge.occupied{background:var(--red-light);color:var(--red);}
+.room-badge.cleaning{background:var(--amber-light);color:var(--amber);}
+.room-badge.reserved{background:var(--blue-light);color:var(--blue);}
+.room-guest-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.room-guest-sub{font-size:11px;color:var(--ink-3);}
+.room-date{font-size:11px;color:var(--ink-3);margin-top:4px;}
+.room-empty{font-size:13px;color:var(--stone-3);margin-top:4px;}
+.returning-badge{display:inline-block;background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:4px;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.overlay.show{display:flex;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.2);}
+.modal-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--stone-2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;}
+.modal-head h2{font-size:20px;font-weight:700;}
+.modal-close{width:32px;height:32px;border:none;background:var(--stone);border-radius:50%;font-size:16px;cursor:pointer;}
+.modal-body{padding:1.5rem;}
+
+/* ROOM ACTION BUTTONS */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.action-btn{padding:14px;border:2px solid var(--stone-3);border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.15s;color:var(--ink-2);}
+.action-btn:hover{transform:translateY(-1px);}
+.action-btn.reserve{border-color:var(--blue);color:var(--blue);}
+.action-btn.reserve:hover{background:var(--blue);color:#fff;}
+.action-btn.cleaning{border-color:var(--amber);color:var(--amber);}
+.action-btn.cleaning:hover{background:var(--amber);color:#fff;}
+.action-btn.available{border-color:var(--green);color:var(--green);}
+.action-btn.available:hover{background:var(--green);color:#fff;}
+.action-btn.swap{border-color:var(--purple);color:var(--purple);}
+.action-btn.swap:hover{background:var(--purple);color:#fff;}
+.action-btn.checkout{border-color:var(--red);color:var(--red);}
+.action-btn.checkout:hover{background:var(--red);color:#fff;}
+
+/* GUEST INFO BOX */
+.guest-info-box{background:var(--stone);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.guest-info-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;}
+.guest-info-label{color:var(--ink-3);}
+.guest-info-val{font-weight:600;color:var(--ink);}
+
+/* SECTION LABEL */
+.sec-label{font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;margin-top:1.25rem;}
+
+/* SWAP MODAL */
+.swap-reason-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;}
+.reason-btn{padding:10px;border:2px solid var(--stone-3);border-radius:8px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;text-align:center;color:var(--ink-2);transition:all 0.15s;}
+.reason-btn.selected{border-color:var(--purple);background:var(--purple);color:#fff;}
+.room-sel-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:1rem;}
+.room-sel-btn{padding:12px 4px;border:2px solid var(--stone-3);border-radius:8px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink);text-align:center;font-family:'Courier New',monospace;transition:all 0.15s;}
+.room-sel-btn.selected{border-color:var(--purple);background:var(--purple);color:#fff;}
+.room-sel-btn.occupied{background:#FFF5F5;color:var(--red);cursor:not-allowed;border-color:#F5B8B3;}
+.room-sel-btn.self{background:var(--stone);color:var(--ink-3);cursor:not-allowed;}
+
+/* FIELD */
+.field{margin-bottom:1rem;}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px;}
+.field input{width:100%;padding:10px 14px;border:2px solid var(--stone-3);border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--ink);background:var(--stone);outline:none;}
+.field input:focus{border-color:var(--saffron);background:#fff;}
+
+/* CONFIRM BTN */
+.confirm-btn{width:100%;padding:13px;background:var(--saffron);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;}
+.confirm-btn.green{background:var(--green);}
+.confirm-btn.red{background:var(--red);}
+.confirm-btn.amber{background:var(--amber);}
+.confirm-btn.blue{background:var(--blue);}
+.confirm-btn.purple{background:var(--purple);}
+
+/* FEEDBACK MODAL */
+.fb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:center;justify-content:center;padding:1rem;}
+.fb-overlay.show{display:flex;}
+.fb-modal{background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.25);}
+.fb-head{background:#25D366;padding:1.25rem 1.5rem;color:#fff;}
+.fb-head h3{font-size:20px;font-weight:700;margin-bottom:3px;}
+.fb-head p{font-size:13px;opacity:0.9;}
+.fb-body{padding:1.5rem;}
+.fb-guest-info{background:var(--stone);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.fb-guest-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.fb-guest-sub{font-size:12px;color:var(--ink-3);}
+.fb-btns{display:flex;flex-direction:column;gap:8px;}
+.fb-btn{padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s;}
+.fb-btn.wa{background:#25D366;color:#fff;}
+.fb-btn.wa:hover{background:#1ebe5d;}
+.fb-btn.skip{background:var(--stone);color:var(--ink-3);border:1.5px solid var(--stone-3);}
+.fb-btn.skip:hover{background:var(--stone-2);}
+.fb-note{font-size:12px;color:var(--ink-3);text-align:center;margin-top:8px;line-height:1.5;}
+
+/* CHECKOUT CHECK MODAL */
+.co-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:center;justify-content:center;padding:1rem;}
+.co-overlay.show{display:flex;}
+.co-modal{background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.25);}
+.co-head{background:var(--amber);padding:1.25rem 1.5rem;color:#fff;}
+.co-head h3{font-size:20px;font-weight:700;margin-bottom:3px;}
+.co-head p{font-size:13px;opacity:0.9;}
+.co-body{padding:1.5rem;}
+.co-room-info{background:var(--stone);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.co-room-num{font-family:'Courier New',monospace;font-size:24px;font-weight:700;margin-bottom:4px;}
+.co-guest{font-size:14px;font-weight:600;margin-bottom:2px;}
+.co-since{font-size:12px;color:var(--ink-3);}
+.co-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.co-btn{padding:13px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid transparent;}
+.co-btn.yes{background:var(--green-light);color:var(--green);border-color:var(--green);}
+.co-btn.yes:hover{background:var(--green);color:#fff;}
+.co-btn.no{background:var(--red-light);color:var(--red);border-color:var(--red);}
+.co-btn.no:hover{background:var(--red);color:#fff;}
+.co-progress{font-size:12px;color:var(--ink-3);text-align:center;margin-top:1rem;}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+@media(max-width:1024px){.rooms-grid{grid-template-columns:repeat(3,1fr);}.summary-strip{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:600px){.rooms-grid{grid-template-columns:repeat(2,1fr);}.summary-strip{grid-template-columns:repeat(3,1fr);}.page{padding:1rem;}header{padding:0 1rem;}.nav-links{display:none;}}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">PR</div>
+    <div class="logo-text">Panjamugam Residency<span class="logo-sub">Room Status</span></div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active" href="/">Rooms</a>
+    <a class="nav-link" href="/dashboard">Dashboard</a>
+    <a class="nav-link" href="/entry">New Entry</a>
+    <a class="nav-link" href="/demo">How to Use</a>
+  </div>
+  <div class="header-right">
+    <a class="checkin-btn" href="/checkin">Guest Check-in</a>
+    <div class="status-pill">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Connecting...</span>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="summary-strip">
+    <div class="scard total"><div class="scard-val">10</div><div class="scard-label">Total</div></div>
+    <div class="scard av"><div class="scard-val g" id="cntAv">-</div><div class="scard-label">Available</div></div>
+    <div class="scard oc"><div class="scard-val r" id="cntOc">-</div><div class="scard-label">Occupied</div></div>
+    <div class="scard cl"><div class="scard-val a" id="cntCl">-</div><div class="scard-label">Cleaning</div></div>
+    <div class="scard re"><div class="scard-val b" id="cntRe">-</div><div class="scard-label">Reserved</div></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Available</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Occupied</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Cleaning</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Reserved</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Returning Guest</div>
+  </div>
+
+  <div class="floor-label">First Floor <span class="floor-badge">Rooms 101-105</span></div>
+  <div class="rooms-grid" id="floor1"></div>
+  <div class="floor-label">Second Floor <span class="floor-badge">Rooms 201-205</span></div>
+  <div class="rooms-grid" id="floor2"></div>
+
+</div>
+
+<!-- MAIN ROOM MODAL -->
+<div class="overlay" id="roomModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">Room 101</h2>
+      <button class="modal-close" onclick="closeModal()">x</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Guest info (occupied/reserved only) -->
+      <div id="guestInfoBox" style="display:none;">
+        <div class="guest-info-box">
+          <div class="guest-info-row"><span class="guest-info-label">Guest</span><span class="guest-info-val" id="giName">-</span></div>
+          <div class="guest-info-row"><span class="guest-info-label">Phone</span><span class="guest-info-val" id="giPhone">-</span></div>
+          <div class="guest-info-row"><span class="guest-info-label">Check-in</span><span class="guest-info-val" id="giCheckIn">-</span></div>
+          <div class="guest-info-row"><span class="guest-info-label">Check-out</span><span class="guest-info-val" id="giCheckOut">-</span></div>
+          <div class="guest-info-row"><span class="guest-info-label">Visits</span><span class="guest-info-val" id="giVisits">-</span></div>
+        </div>
+      </div>
+
+      <!-- ACTIONS FOR AVAILABLE ROOM -->
+      <div id="actionsAvailable" style="display:none;">
+        <div class="sec-label">Actions</div>
+        <div class="action-grid">
+          <button class="action-btn reserve" onclick="quickAction('reserved')">Reserve Room</button>
+          <button class="action-btn cleaning" onclick="quickAction('cleaning')">Mark Cleaning</button>
+        </div>
+        <p style="font-size:13px;color:var(--ink-3);text-align:center;margin-top:8px;">To check in a guest, use the <a href="/checkin" style="color:var(--saffron);font-weight:600;">Guest Check-in</a> page.</p>
+      </div>
+
+      <!-- ACTIONS FOR OCCUPIED ROOM -->
+      <div id="actionsOccupied" style="display:none;">
+        <div class="sec-label">Actions</div>
+        <div class="action-grid">
+          <button class="action-btn checkout" onclick="checkoutNow()">Check Out</button>
+          <button class="action-btn swap" onclick="showSwapPanel()">Swap Room</button>
+          <button class="action-btn cleaning" onclick="quickAction('cleaning')">Mark Cleaning</button>
+          <button class="action-btn available" onclick="quickAction('available')">Mark Available</button>
+        </div>
+      </div>
+
+      <!-- ACTIONS FOR RESERVED ROOM -->
+      <div id="actionsReserved" style="display:none;">
+        <div class="sec-label">Actions</div>
+        <div class="action-grid">
+          <button class="action-btn available" onclick="quickAction('available')">Cancel Reservation</button>
+          <button class="action-btn cleaning" onclick="quickAction('cleaning')">Mark Cleaning</button>
+        </div>
+        <p style="font-size:13px;color:var(--ink-3);text-align:center;margin-top:8px;">To check in a guest, use the <a href="/checkin" style="color:var(--saffron);font-weight:600;">Guest Check-in</a> page.</p>
+      </div>
+
+      <!-- ACTIONS FOR CLEANING ROOM -->
+      <div id="actionsCleaning" style="display:none;">
+        <div class="sec-label">Actions</div>
+        <div class="action-grid">
+          <button class="action-btn available" onclick="quickAction('available')">Mark as Ready</button>
+          <button class="action-btn reserve" onclick="quickAction('reserved')">Reserve Room</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SWAP MODAL -->
+<div class="overlay" id="swapModal" onclick="if(event.target===this)closeSwap()">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Swap Room</h2>
+      <button class="modal-close" onclick="closeSwap()">x</button>
+    </div>
+    <div class="modal-body">
+      <div class="guest-info-box" id="swapGuestInfo" style="margin-bottom:1.25rem;"></div>
+
+      <div class="sec-label">Reason for Swap</div>
+      <div class="swap-reason-grid" id="reasonGrid">
+        <button class="reason-btn" onclick="selectReason('Issue with TV')">TV Issue</button>
+        <button class="reason-btn" onclick="selectReason('Issue with AC')">AC Issue</button>
+        <button class="reason-btn" onclick="selectReason('Room not clean')">Room Not Clean</button>
+        <button class="reason-btn" onclick="selectReason('Toilet not clean')">Toilet Not Clean</button>
+      </div>
+      <button class="reason-btn" id="othersBtn" onclick="selectReason('Others')" style="width:100%;margin-bottom:10px;">Others</button>
+      <div class="field" id="otherReasonField" style="display:none;">
+        <label>Describe the reason</label>
+        <input type="text" id="otherReasonInput" placeholder="Enter reason...">
+      </div>
+
+      <div class="sec-label">Select New Room</div>
+      <div style="font-size:11px;color:var(--ink-3);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">First Floor</div>
+      <div class="room-sel-grid" id="swapFloor1"></div>
+      <div style="font-size:11px;color:var(--ink-3);margin:10px 0 8px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Second Floor</div>
+      <div class="room-sel-grid" id="swapFloor2"></div>
+
+      <button class="confirm-btn purple" onclick="confirmSwap()" style="margin-top:1rem;">Confirm Room Swap</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT CHECK MODAL -->
+<div class="co-overlay" id="coOverlay">
+  <div class="co-modal">
+    <div class="co-head">
+      <h3>Checkout Check</h3>
+      <p>Please confirm the room status</p>
+    </div>
+    <div class="co-body">
+      <div class="co-room-info">
+        <div class="co-room-num" id="coRoom">-</div>
+        <div class="co-guest" id="coGuest">-</div>
+        <div class="co-since" id="coCheckIn">-</div>
+        <div class="co-since" id="coCheckOut">-</div>
+      </div>
+      <p style="font-size:14px;font-weight:500;margin-bottom:1.25rem;">Is this room still occupied?</p>
+      <div class="co-btns">
+        <button class="co-btn yes" onclick="coAnswer(true)">Yes, still occupied</button>
+        <button class="co-btn no" onclick="coAnswer(false)">No, check out</button>
+      </div>
+      <div class="co-progress" id="coProgress"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FEEDBACK MODAL -->
+<div class="fb-overlay" id="fbOverlay">
+  <div class="fb-modal">
+    <div class="fb-head">
+      <h3>Request Feedback</h3>
+      <p>Send a WhatsApp message to the guest</p>
+    </div>
+    <div class="fb-body">
+      <div class="fb-guest-info">
+        <div class="fb-guest-name" id="fbGuestName">Guest</div>
+        <div class="fb-guest-sub" id="fbGuestSub">Room — · Phone —</div>
+      </div>
+      <div class="fb-btns">
+        <button class="fb-btn wa" onclick="sendFeedbackWA()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Send Feedback Request on WhatsApp
+        </button>
+        <button class="fb-btn skip" onclick="skipFeedback()">Skip — No feedback needed</button>
+      </div>
+      <div class="fb-note">Message is pre-written. Staff just needs to tap Send on WhatsApp.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var roomsData = {};
+var currentRoom = null;
+var swapReason = '';
+var swapTargetRoom = null;
+var coQueue = [];
+var coIndex = 0;
+
+var ROOMS = ['101','102','103','104','105','201','202','203','204','205'];
+
+window.onload = function() { loadRooms(); };
+
+function loadRooms() {
+  apiGet('getRooms')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.success){
+        roomsData = d.rooms;
+        renderRooms();
+        document.getElementById('statusDot').className = 'status-dot connected';
+        document.getElementById('statusText').textContent = 'Live';
+        checkCheckouts(d.rooms);
+      } else {
+        document.getElementById('statusText').textContent = 'Error: ' + d.error;
+        renderRooms(); // still render with empty data
+      }
+    })
+    .catch(function(e){
+      document.getElementById('statusText').textContent = 'Offline';
+      renderRooms(); // render with default empty data so rooms show
+    });
+}
+
+function fmtDate(s) {
+  if(!s) return '-';
+  try { return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch(e) { return s; }
+}
+
+function renderRooms() {
+  var counts = {available:0, occupied:0, cleaning:0, reserved:0};
+  document.getElementById('floor1').innerHTML = '';
+  document.getElementById('floor2').innerHTML = '';
+
+  ROOMS.forEach(function(id) {
+    var room = roomsData[id] || {status:'available', guest:null};
+    var s = room.status || 'available';
+    counts[s] = (counts[s]||0) + 1;
+    var g = room.guest;
+
+    var card = document.createElement('div');
+    card.className = 'room-card ' + s;
+    card.onclick = function(){ openModal(id); };
+
+    var statusLabel = s.charAt(0).toUpperCase() + s.slice(1);
+    var html = '<div class="room-number">' + id + '</div>';
+    html += '<div class="room-badge ' + s + '">' + statusLabel + '</div>';
+
+    if(g) {
+      html += '<div class="room-guest-name">' + (g.name||'Guest') + '</div>';
+      if(g.phone) html += '<div class="room-guest-sub">' + g.phone + '</div>';
+      if(room.checked_in) html += '<div class="room-date">In: ' + fmtDate(room.checked_in) + '</div>';
+      if(room.checked_out) html += '<div class="room-date">Out: ' + fmtDate(room.checked_out) + '</div>';
+      if(g.returning) html += '<div class="returning-badge">Returning: ' + g.visits + ' visits</div>';
+    } else {
+      html += '<div class="room-empty">' + (s==='available' ? 'No guest' : '-') + '</div>';
+    }
+    card.innerHTML = html;
+    document.getElementById(id.startsWith('1') ? 'floor1' : 'floor2').appendChild(card);
+  });
+
+  document.getElementById('cntAv').textContent = counts.available||0;
+  document.getElementById('cntOc').textContent = counts.occupied||0;
+  document.getElementById('cntCl').textContent = counts.cleaning||0;
+  document.getElementById('cntRe').textContent = counts.reserved||0;
+}
+
+function openModal(id) {
+  currentRoom = id;
+  var room = roomsData[id] || {status:'available'};
+  var s = room.status || 'available';
+  var g = room.guest;
+
+  document.getElementById('modalTitle').textContent = 'Room ' + id;
+
+  // Show/hide guest info
+  var gBox = document.getElementById('guestInfoBox');
+  if(g && (s === 'occupied' || s === 'reserved')) {
+    gBox.style.display = 'block';
+    document.getElementById('giName').textContent = g.name || '-';
+    document.getElementById('giPhone').textContent = g.phone || '-';
+    document.getElementById('giCheckIn').textContent = fmtDate(room.checked_in);
+    document.getElementById('giCheckOut').textContent = room.checked_out ? fmtDate(room.checked_out) : 'Not set';
+    document.getElementById('giVisits').textContent = g.visits || 1;
+  } else {
+    gBox.style.display = 'none';
+  }
+
+  // Show correct action panel
+  document.getElementById('actionsAvailable').style.display = s==='available' ? 'block' : 'none';
+  document.getElementById('actionsOccupied').style.display = s==='occupied' ? 'block' : 'none';
+  document.getElementById('actionsReserved').style.display = s==='reserved' ? 'block' : 'none';
+  document.getElementById('actionsCleaning').style.display = s==='cleaning' ? 'block' : 'none';
+
+  document.getElementById('roomModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('roomModal').classList.remove('show');
+  currentRoom = null;
+}
+
+function quickAction(status) {
+  if(!currentRoom) return;
+  apiPost('updateRoom', {room: currentRoom, status: status})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.success){
+      roomsData[currentRoom] = d.room;
+      renderRooms();
+      closeModal();
+      var msgs = {available:'Room marked as available', cleaning:'Room marked for cleaning', reserved:'Room reserved'};
+      showToast(msgs[status] || 'Updated');
+    } else { showToast('Error: ' + d.error); }
+  })
+  .catch(function(){ showToast('Cannot reach server'); });
+}
+
+function checkoutNow() {
+  if(!currentRoom) return;
+  if(!confirm('Check out guest from Room ' + currentRoom + '?')) return;
+  var guestBeforeCheckout = roomsData[currentRoom] ? roomsData[currentRoom].guest : null;
+  var roomIdBeforeCheckout = currentRoom;
+  apiPost('updateRoom', 
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({room: currentRoom, status: 'available'})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.success){
+      roomsData[roomIdBeforeCheckout] = d.room;
+      renderRooms();
+      closeModal();
+      showToast('Room ' + roomIdBeforeCheckout + ' checked out');
+      // Show feedback modal after checkout
+      if(guestBeforeCheckout && guestBeforeCheckout.phone) {
+        setTimeout(function(){
+          showFeedbackModal(roomIdBeforeCheckout, guestBeforeCheckout);
+        }, 500);
+      }
+    }
+  })
+  .catch(function(){ showToast('Cannot reach server'); });
+}
+
+//  SWAP 
+function showSwapPanel() {
+  if(!currentRoom) return;
+  var room = roomsData[currentRoom];
+  var g = room.guest;
+
+  swapReason = '';
+  swapTargetRoom = null;
+
+  // Reset reason buttons
+  document.querySelectorAll('.reason-btn').forEach(function(b){ b.className = 'reason-btn'; });
+  document.getElementById('otherReasonField').style.display = 'none';
+  document.getElementById('otherReasonInput').value = '';
+
+  // Guest info
+  var info = '';
+  if(g) {
+    info = '<div class="guest-info-row"><span class="guest-info-label">Guest</span><span class="guest-info-val">' + (g.name||'-') + '</span></div>';
+    info += '<div class="guest-info-row"><span class="guest-info-label">Current Room</span><span class="guest-info-val">Room ' + currentRoom + '</span></div>';
+  }
+  document.getElementById('swapGuestInfo').innerHTML = info;
+
+  // Render available rooms for swap
+  document.getElementById('swapFloor1').innerHTML = '';
+  document.getElementById('swapFloor2').innerHTML = '';
+  ['101','102','103','104','105'].forEach(function(id){ renderSwapBtn(id, 'swapFloor1'); });
+  ['201','202','203','204','205'].forEach(function(id){ renderSwapBtn(id, 'swapFloor2'); });
+
+  closeModal();
+  document.getElementById('swapModal').classList.add('show');
+}
+
+function renderSwapBtn(id, containerId) {
+  var room = roomsData[id] || {status:'available'};
+  var btn = document.createElement('button');
+  var isSelf = id === currentRoom;
+  var isOccupied = room.status === 'occupied' || room.status === 'reserved';
+  btn.className = 'room-sel-btn' + (isSelf ? ' self' : isOccupied ? ' occupied' : '');
+  btn.textContent = id;
+  btn.id = 'swap-btn-' + id;
+  if(!isSelf && !isOccupied) {
+    btn.onclick = function(){ selectSwapRoom(id); };
+  }
+  document.getElementById(containerId).appendChild(btn);
+}
+
+function selectSwapRoom(id) {
+  swapTargetRoom = id;
+  document.querySelectorAll('.room-sel-btn').forEach(function(b){ b.classList.remove('selected'); });
+  var btn = document.getElementById('swap-btn-' + id);
+  if(btn) btn.classList.add('selected');
+}
+
+function selectReason(reason) {
+  swapReason = reason;
+  document.querySelectorAll('.reason-btn').forEach(function(b){ b.className = 'reason-btn'; });
+  event.target.className = 'reason-btn selected';
+  document.getElementById('otherReasonField').style.display = reason === 'Others' ? 'block' : 'none';
+}
+
+function confirmSwap() {
+  var reason = swapReason;
+  if(reason === 'Others') {
+    reason = document.getElementById('otherReasonInput').value.trim();
+    if(!reason){ alert('Please describe the reason for swap'); return; }
+  }
+  if(!reason){ alert('Please select a reason for the swap'); return; }
+  if(!swapTargetRoom){ alert('Please select the new room'); return; }
+
+  if(!confirm('Swap guest from Room ' + currentRoom + ' to Room ' + swapTargetRoom + '?\nReason: ' + reason)) return;
+
+  apiPost('swapRoom', {from_room: currentRoom, to_room: swapTargetRoom, reason: reason})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.success){
+      closeSwap();
+      loadRooms();
+      showToast('Room swapped: ' + d.from + ' to ' + d.to);
+    } else { showToast('Error: ' + d.error); }
+  })
+  .catch(function(){ showToast('Cannot reach server'); });
+}
+
+function closeSwap() {
+  document.getElementById('swapModal').classList.remove('show');
+}
+
+//  CHECKOUT CHECK 
+function checkCheckouts(rooms) {
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  coQueue = [];
+  Object.keys(rooms).forEach(function(id) {
+    var room = rooms[id];
+    if(room.status !== 'occupied') return;
+    var ask = false;
+    if(!room.checked_out) {
+      if(room.checked_in) {
+        var cin = new Date(room.checked_in);
+        cin.setHours(0,0,0,0);
+        var next = new Date(cin);
+        next.setDate(next.getDate()+1);
+        if(today >= next) ask = true;
+      } else { ask = true; }
+    } else {
+      var cout = new Date(room.checked_out);
+      cout.setHours(0,0,0,0);
+      if(today >= cout) ask = true;
+    }
+    if(ask) coQueue.push(id);
+  });
+  if(coQueue.length > 0){ coIndex = 0; showCoModal(coQueue[0]); }
+}
+
+function showCoModal(id) {
+  var room = roomsData[id] || {};
+  var g = room.guest;
+  document.getElementById('coRoom').textContent = 'Room ' + id;
+  document.getElementById('coGuest').textContent = g ? (g.name||'Guest') : 'Guest';
+  document.getElementById('coCheckIn').textContent = room.checked_in ? 'Checked in: ' + fmtDate(room.checked_in) : 'Check-in unknown';
+  document.getElementById('coCheckOut').textContent = room.checked_out ? 'Expected out: ' + fmtDate(room.checked_out) : 'No checkout date set';
+  document.getElementById('coProgress').textContent = 'Room ' + (coIndex+1) + ' of ' + coQueue.length;
+  document.getElementById('coOverlay').className = 'co-overlay show';
+}
+
+function coAnswer(stillOccupied) {
+  var id = coQueue[coIndex];
+  if(!stillOccupied) {
+    var guestCo = roomsData[id] ? roomsData[id].guest : null;
+    apiPost('updateRoom', {room: id, status: 'available'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.success){
+        roomsData[id] = d.room;
+        if(guestCo && guestCo.phone) {
+          setTimeout(function(){
+            showFeedbackModal(id, guestCo);
+          }, 600);
+        }
+      }
+    });
+    showToast('Room ' + id + ' marked as available');
+  }
+  coIndex++;
+  if(coIndex < coQueue.length) { showCoModal(coQueue[coIndex]); }
+  else { document.getElementById('coOverlay').className = 'co-overlay'; renderRooms(); }
+}
+
+// -- FEEDBACK -----------------------------------------------------------------
+var fbGuestData = {};
+var fbRoomId = '';
+var fbWaLink = '';
+
+function showFeedbackModal(roomId, guest, checkedIn) {
+  fbRoomId = roomId;
+  fbGuestData = guest || {};
+  var name = fbGuestData.name || 'Guest';
+  var phone = fbGuestData.phone || '';
+  document.getElementById('fbGuestName').textContent = name;
+  document.getElementById('fbGuestSub').textContent = 'Room ' + roomId + '  |  ' + (phone || 'No phone');
+
+  if(phone) {
+    var nl = '\n';
+    var msg = 'Dear ' + name + ',' + nl + nl +
+      'Thank you for staying at Panjamugam Residency!' + nl + nl +
+      'We hope you had a pleasant stay in Room ' + roomId + '.' + nl + nl +
+      'We would love to hear your feedback:' + nl +
+      '- How was your overall experience?' + nl +
+      '- Was the room clean and comfortable?' + nl +
+      '- How was our staff service?' + nl + nl +
+      'Please reply to this message with your thoughts.' + nl +
+      'We look forward to welcoming you again!' + nl + nl +
+      '- Panjamugam Residency, Tiruvannamalai';
+
+    var enc = encodeURIComponent(msg);
+    var clean = phone.replace(/[^0-9]/g, '');
+    var india = clean.indexOf('91') === 0 ? clean : '91' + clean;
+    fbWaLink = 'https://wa.me/' + india + '?text=' + enc;
+  } else {
+    fbWaLink = '';
+  }
+
+  document.getElementById('fbOverlay').className = 'fb-overlay show';
+}
+
+function sendFeedbackWA() {
+  if(fbWaLink) {
+    window.open(fbWaLink, '_blank');
+  } else {
+    showToast('No phone number for this guest');
+  }
+  closeFeedback();
+}
+
+function skipFeedback() {
+  closeFeedback();
+}
+
+function closeFeedback() {
+  document.getElementById('fbOverlay').className = 'fb-overlay';
+  fbGuestData = {};
+  fbRoomId = '';
+  fbWaLink = '';
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show';
+  setTimeout(function(){ t.className = 'toast'; }, 3000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panjamugam Residency — Dashboard</title>
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --saffron:#E8610A;--saffron-light:#FFF0E8;--saffron-dark:#B84A06;
+    --gold:#C8860A;--gold-light:#FFF8E1;
+    --ink:#1A1208;--ink-2:#3D2E1A;--ink-3:#6B5640;
+    --stone:#F5EFE6;--stone-2:#EDE4D8;--stone-3:#D8CCBB;
+    --cream:#FDFAF6;--green:#1E7A4A;--green-light:#E8F5EE;
+    --red:#C0392B;--red-light:#FDEEEC;--blue:#1A73E8;
+    --purple:#7F77DD;--radius:12px;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+  header{background:var(--ink);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+  .logo{display:flex;align-items:center;gap:12px;}
+  .logo-icon{width:36px;height:36px;background:var(--saffron);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:18px;color:#fff;}
+  .logo-text{font-family:Georgia,serif;font-size:17px;color:#fff;line-height:1.2;}
+  .logo-sub{font-size:11px;font-weight:300;color:#888;display:block;}
+  .nav-links{display:flex;gap:4px;}
+  .nav-link{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;color:#aaa;text-decoration:none;transition:all 0.15s;border:1px solid transparent;}
+  .nav-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .nav-link.active{color:#fff;background:var(--saffron);border-color:var(--saffron-dark);}
+  .status-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:#888;}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:#888;animation:pulse 2s infinite;}
+  .status-dot.connected{background:#34c759;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+  .page{max-width:1280px;margin:0 auto;padding:2rem;}
+  .section-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;margin-top:1.5rem;padding-left:2px;}
+  .section-label:first-child{margin-top:0;}
+
+  /* STAT CARDS */
+  .cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:0.5rem;}
+  .scard{background:#fff;border:1px solid var(--stone-3);border-radius:var(--radius);padding:1.1rem 1.25rem;position:relative;overflow:hidden;}
+  .scard::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;}
+  .scard.green::before{background:var(--green);}
+  .scard.red::before{background:var(--red);}
+  .scard.saffron::before{background:var(--saffron);}
+  .scard.gold::before{background:var(--gold);}
+  .scard.purple::before{background:var(--purple);}
+  .scard.blue::before{background:var(--blue);}
+  .scard-label{font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--ink-3);text-transform:uppercase;margin-bottom:5px;}
+  .scard-val{font-family:'Courier New',monospace;font-size:22px;font-weight:500;color:var(--ink);}
+  .scard-val.pos{color:var(--green);}
+  .scard-val.neg{color:var(--red);}
+  .scard-val.orf{color:var(--saffron);}
+  .scard-val.gld{color:var(--gold);}
+  .scard-sub{font-size:11px;color:var(--ink-3);margin-top:3px;}
+
+  /* P&L CARD */
+  .pnl-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+  .pnl-card{background:#fff;border:1px solid var(--stone-3);border-radius:var(--radius);overflow:hidden;}
+  .pnl-head{padding:1rem 1.25rem;border-bottom:1px solid var(--stone-2);display:flex;align-items:center;justify-content:space-between;}
+  .pnl-head h3{font-family:Georgia,serif;font-size:17px;font-weight:400;}
+  .pnl-badge{font-size:11px;font-weight:600;background:var(--stone);color:var(--ink-3);padding:3px 10px;border-radius:20px;}
+  .pnl-body{padding:1.25rem;}
+  .pnl-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--stone-2);}
+  .pnl-row:last-child{border-bottom:none;}
+  .pnl-row.total{border-top:2px solid var(--stone-3);margin-top:4px;padding-top:10px;font-weight:600;}
+  .pnl-row.drawing{background:var(--saffron-light);margin:0 -1.25rem;padding:8px 1.25rem;border-bottom:none;}
+  .pnl-row.profit{background:var(--green-light);margin:0 -1.25rem;padding:10px 1.25rem;border-radius:0 0 var(--radius) var(--radius);}
+  .pnl-label{font-size:13px;color:var(--ink-2);}
+  .pnl-label.sub{font-size:12px;color:var(--ink-3);padding-left:12px;}
+  .pnl-label.head{font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);}
+  .pnl-amount{font-family:'Courier New',monospace;font-size:14px;font-weight:500;}
+  .pnl-amount.inc{color:var(--green);}
+  .pnl-amount.exp{color:var(--red);}
+  .pnl-amount.drw{color:var(--saffron);}
+  .pnl-amount.prf{color:var(--green);font-size:16px;}
+  .pnl-amount.neg{color:var(--red);font-size:16px;}
+
+  /* CHARTS */
+  .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+  .card{background:#fff;border:1px solid var(--stone-3);border-radius:var(--radius);overflow:hidden;}
+  .card-head{padding:1rem 1.25rem;border-bottom:1px solid var(--stone-2);display:flex;align-items:center;justify-content:space-between;}
+  .card-head h3{font-family:Georgia,serif;font-size:17px;font-weight:400;}
+  .card-badge{font-size:11px;font-weight:600;background:var(--stone);color:var(--ink-3);padding:3px 10px;border-radius:20px;}
+  .card-body{padding:1.25rem;}
+  .chart-wrap{position:relative;height:200px;}
+
+  /* LEDGER */
+  .ledger-card{background:#fff;border:1px solid var(--stone-3);border-radius:var(--radius);overflow:hidden;margin-bottom:1.25rem;}
+  .ledger-head{padding:1rem 1.25rem;border-bottom:1px solid var(--stone-2);display:flex;align-items:center;justify-content:space-between;}
+  .ledger-head h3{font-family:Georgia,serif;font-size:17px;font-weight:400;}
+  .search-box{padding:7px 12px;border:1px solid var(--stone-3);border-radius:6px;font-size:13px;width:180px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--stone);outline:none;}
+  .search-box:focus{border-color:var(--saffron);background:#fff;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:var(--stone);}
+  th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap;}
+  td{padding:10px 12px;font-size:13px;color:var(--ink-2);border-bottom:1px solid var(--stone-2);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--stone);}
+  .amount-income{font-family:'Courier New',monospace;font-weight:500;color:var(--green);}
+  .amount-expense{font-family:'Courier New',monospace;font-weight:500;color:var(--red);}
+  .mode-badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+  .mode-cash{background:var(--gold-light);color:var(--gold);}
+  .mode-online{background:#E8F0FE;color:#1A73E8;}
+  .mode-mixed{background:var(--stone);color:var(--ink-3);}
+  .room-tag{background:var(--saffron-light);color:var(--saffron-dark);font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;font-family:'Courier New',monospace;}
+  .count-tag{background:var(--green-light);color:var(--green);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:'Courier New',monospace;}
+  .cat-tag{background:var(--stone);color:var(--ink-3);font-size:11px;padding:2px 7px;border-radius:4px;}
+  .cat-drawing{background:#FFF0E8;color:var(--saffron-dark);}
+  .cat-income{background:var(--green-light);color:var(--green);}
+  .empty-row td{text-align:center;padding:3rem;color:var(--ink-3);}
+
+  /* SHARE BUTTON */
+  .share-btn{padding:8px 16px;background:#2A2A1A;border:1px solid #444;border-radius:8px;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;}
+  .share-btn:hover{background:#3A3A2A;}
+
+  /* SHARE MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:#fff;border-radius:var(--radius);padding:2rem;width:340px;box-shadow:0 8px 40px rgba(0,0,0,0.2);}
+  .modal h3{font-family:Georgia,serif;font-size:20px;font-weight:400;margin-bottom:6px;}
+  .modal p{font-size:13px;color:var(--ink-3);margin-bottom:1.25rem;line-height:1.6;}
+  .modal-btns{display:flex;flex-direction:column;gap:8px;}
+  .modal-btn{padding:12px;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;display:flex;align-items:center;gap:10px;}
+  .modal-btn.img{background:var(--green);color:#fff;}
+  .modal-btn.img:hover{background:#175e38;}
+  .modal-btn.pdf{background:var(--saffron);color:#fff;}
+  .modal-btn.pdf:hover{background:var(--saffron-dark);}
+  .modal-btn.cancel{background:var(--stone);color:var(--ink-3);}
+  .modal-btn.cancel:hover{background:var(--stone-2);}
+  .modal-progress{display:none;text-align:center;padding:1rem 0;font-size:13px;color:var(--ink-3);}
+
+  /* MONTH PAGINATION */
+  .month-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:1rem 1.25rem;border-bottom:1px solid var(--stone-2);background:var(--stone);}
+  .month-tab{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--stone-3);background:#fff;color:var(--ink-3);transition:all 0.15s;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+  .month-tab:hover{border-color:var(--saffron);color:var(--saffron-dark);}
+  .month-tab.active{background:var(--saffron);border-color:var(--saffron-dark);color:#fff;}
+  .month-tab.all{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+  .fab{position:fixed;bottom:2rem;right:2rem;background:var(--saffron);color:#fff;border:none;border-radius:50px;padding:14px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(232,97,10,0.4);text-decoration:none;display:flex;align-items:center;gap:8px;transition:all 0.2s;}
+  .fab:hover{background:var(--saffron-dark);transform:translateY(-2px);}
+
+  @media(max-width:1024px){.cards-row{grid-template-columns:repeat(2,1fr);}.charts-row,.pnl-grid{grid-template-columns:1fr;}}
+  @media(max-width:600px){.page{padding:1rem;}header{padding:0 1rem;}.nav-links{display:none;}}
+
+  /* PAYMENT REMINDER BANNER */
+  .reminder-wrap{margin-bottom:1.5rem;display:none;}
+  .reminder-wrap.show{display:block;}
+  .reminder-title{font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .reminder-card{background:#fff;border:1.5px solid #F5B8B3;border-radius:var(--radius);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:1rem;}
+  .reminder-card:last-child{margin-bottom:0;}
+  .reminder-info{flex:1;}
+  .reminder-room{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+  .reminder-guest{font-size:13px;color:var(--ink-3);}
+  .reminder-add-btn{padding:8px 16px;background:var(--saffron);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;}
+  .reminder-add-btn:hover{background:var(--saffron-dark);}
+  .reminder-dismiss{background:none;border:none;color:var(--ink-3);font-size:18px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">PR</div>
+    <div class="logo-text">Panjamugam Residency<span class="logo-sub">2026–27 Accounts</span></div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="/">Rooms</a>
+    <a class="nav-link active" href="/dashboard">Dashboard</a>
+    <a class="nav-link" href="/entry">New Entry</a>
+    <a class="nav-link" href="/demo">How to Use</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button onclick="openExcel()" style="padding:8px 16px;background:#2A2A1A;border:1px solid #444;border-radius:8px;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;" onmouseover="this.style.background='#3A3A2A'" onmouseout="this.style.background='#2A2A1A'">
+      📊 Open Excel
+    </button>
+    <button class="share-btn" onclick="openShareModal()">📤 Share Report</button>
+    <div class="status-pill">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Connecting…</span>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- PAYMENT REMINDERS -->
+  <div class="reminder-wrap" id="reminderWrap">
+    <div class="reminder-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Payment not recorded for today
+    </div>
+    <div id="reminderList"></div>
+  </div>
+
+  <!-- THIS MONTH -->
+  <div class="section-label" id="monthLabel">This Month</div>
+  <div class="cards-row" style="margin-bottom:1.5rem;">
+    <div class="scard green"><div class="scard-label">Revenue this month</div><div class="scard-val pos" id="mIncome">—</div><div class="scard-sub">total room income</div></div>
+    <div class="scard red"><div class="scard-label">Operating expenses</div><div class="scard-val neg" id="mOpex">—</div><div class="scard-sub">staff, bills, operations</div></div>
+    <div class="scard saffron"><div class="scard-label">Operating profit</div><div class="scard-val" id="mProfit">—</div><div class="scard-sub">before your drawing</div></div>
+    <div class="scard gold"><div class="scard-label">Rooms booked</div><div class="scard-val gld" id="mRooms">—</div><div class="scard-sub">room nights this month</div></div>
+  </div>
+
+  <!-- YEAR -->
+  <div class="section-label">Year 2026–27</div>
+  <div class="cards-row" style="margin-bottom:1.5rem;">
+    <div class="scard green"><div class="scard-label">Gross revenue</div><div class="scard-val pos" id="yIncome">—</div><div class="scard-sub">total income this year</div></div>
+    <div class="scard red"><div class="scard-label">Operating expenses</div><div class="scard-val neg" id="yOpex">—</div><div class="scard-sub">staff, bills, operations</div></div>
+    <div class="scard saffron"><div class="scard-label">Operating profit</div><div class="scard-val" id="yProfit">—</div><div class="scard-sub">before your drawing</div></div>
+    <div class="scard gold"><div class="scard-label">Total rooms booked</div><div class="scard-val gld" id="yRooms">—</div><div class="scard-sub">room nights this year</div></div>
+  </div>
+
+  <!-- P&L -->
+  <div class="section-label">Profit & Loss Statement</div>
+  <div class="pnl-grid">
+    <div class="pnl-card">
+      <div class="pnl-head"><h3>This Month</h3><span class="pnl-badge" id="pnlMonthLabel">—</span></div>
+      <div class="pnl-body" id="pnlMonth"><p style="color:var(--ink-3);font-size:13px;">Loading…</p></div>
+    </div>
+    <div class="pnl-card">
+      <div class="pnl-head"><h3>Year 2026–27</h3><span class="pnl-badge">Full year</span></div>
+      <div class="pnl-body" id="pnlYear"><p style="color:var(--ink-3);font-size:13px;">Loading…</p></div>
+    </div>
+  </div>
+
+  <!-- CASH POSITION -->
+  <div class="section-label">Cash Position (Current)</div>
+  <div class="cards-row" style="margin-bottom:1.5rem;">
+    <div class="scard green">
+      <div class="scard-label">Cash in Hand</div>
+      <div class="scard-val pos" id="cashInHand">—</div>
+      <div class="scard-sub">since Apr 2026 · all entries</div>
+    </div>
+    <div class="scard blue">
+      <div class="scard-label">Cash in Account</div>
+      <div class="scard-val" style="color:var(--blue);" id="cashInAccount">—</div>
+      <div class="scard-sub">since Apr 2026 · all entries</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-head"><h3>Monthly Revenue & Profit</h3><span class="card-badge" id="chartBadge">—</span></div>
+      <div class="card-body">
+        <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+        <div style="display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--ink-3);">
+          <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#1E7A4A;display:inline-block;"></span>Income</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#C0392B;display:inline-block;"></span>Expenses</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#E8610A;display:inline-block;"></span>Net Profit</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Rooms / Month</h3><span class="card-badge">room nights</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="roomsChart"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- LEDGER -->
+  <div class="ledger-card">
+    <div class="ledger-head">
+      <h3>Recent Entries</h3>
+      <input class="search-box" placeholder="Search…" oninput="filterTable(this.value)">
+    </div>
+    <div class="month-tabs" id="monthTabs"></div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Income</th><th>Expense</th><th>Mode</th><th>Room</th><th>#</th></tr></thead>
+        <tbody id="ledgerBody"><tr class="empty-row"><td colspan="8">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="shareModal" onclick="if(event.target===this)closeShareModal()">
+  <div class="modal">
+    <h3>Share Report</h3>
+    <p id="shareModalDesc">Export the dashboard as an image or PDF to share with your manager or accountant.</p>
+    <div class="modal-progress" id="shareProgress">⏳ Generating, please wait…</div>
+    <div class="modal-btns" id="shareModalBtns">
+      <button class="modal-btn img" onclick="shareAs('image')">🖼️ Save as Image (PNG)</button>
+      <button class="modal-btn pdf" onclick="shareAs('pdf')">📄 Save as PDF</button>
+      <button class="modal-btn" style="background:var(--blue);color:#fff;" onclick="shareAs('html')">🌐 Save as HTML</button>
+      <button class="modal-btn cancel" onclick="closeShareModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<a class="fab" href="/entry">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  New Entry
+</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let allTxns=[], rChart=null, roomChart=null;
+window.onload = () => { loadData(); loadReminders(); };
+
+async function loadReminders() {
+  try {
+    const r = await apiGet('getUnpaidRooms');
+    const d = await r.json();
+    if(d.success && d.unpaid.length > 0) {
+      const wrap = document.getElementById('reminderWrap');
+      const list = document.getElementById('reminderList');
+      wrap.classList.add('show');
+      list.innerHTML = d.unpaid.map(u => {
+        const checkin = u.checked_in ? new Date(u.checked_in).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) : '';
+        const entryUrl = '/entry?room=' + u.room + '&desc=Room+Book&cat=Room+Income';
+        return '<div class="reminder-card" id="rem-' + u.room + '">' +
+          '<div class="reminder-info">' +
+            '<div class="reminder-room">Room ' + u.room + '  -  Payment not recorded today</div>' +
+            '<div class="reminder-guest">' + u.guest + (checkin ? ' . Checked in: ' + checkin : '') + '</div>' +
+          '</div>' +
+          '<a class="reminder-add-btn" href="' + entryUrl + '">+ Add Entry</a>' +
+          '<button class="reminder-dismiss" onclick="dismissReminder(\'' + u.room + '\')" title="Dismiss">x</button>' +
+        '</div>';
+      }).join('');
+    }
+  } catch(e) {}
+}
+
+function dismissReminder(room) {
+  const el = document.getElementById('rem-' + room);
+  if(el) el.remove();
+  const list = document.getElementById('reminderList');
+  if(list && list.children.length === 0) {
+    document.getElementById('reminderWrap').classList.remove('show');
+  }
+}
+
+async function loadData() {
+  try {
+    const [tr,sr] = await Promise.all([apiGet('getTransactions'),apiGet('getSummary')]);
+    const td=await tr.json(), sd=await sr.json();
+    if(td.success){allTxns=td.data;renderTable(allTxns);buildMonthTabs(allTxns);}
+    if(sd.success){
+      const ml=new Date(sd.this_month+'-01').toLocaleString('en-IN',{month:'long',year:'numeric'});
+      document.getElementById('monthLabel').textContent=ml;
+      document.getElementById('pnlMonthLabel').textContent=ml;
+
+      document.getElementById('mIncome').textContent=fmt(sd.month_income);
+      document.getElementById('mOpex').textContent=fmt(sd.month_opex);
+      const mp=document.getElementById('mProfit');
+      mp.textContent=fmt(Math.abs(sd.month_op_profit));
+      mp.className='scard-val '+(sd.month_op_profit>=0?'pos':'neg');
+      document.getElementById('mRooms').textContent=sd.month_rooms;
+
+      document.getElementById('yIncome').textContent=fmt(sd.year_income);
+      document.getElementById('yOpex').textContent=fmt(sd.year_opex);
+      const yp=document.getElementById('yProfit');
+      yp.textContent=fmt(Math.abs(sd.year_op_profit));
+      yp.className='scard-val '+(sd.year_op_profit>=0?'pos':'neg');
+      document.getElementById('yRooms').textContent=sd.year_rooms;
+
+      renderPnL('pnlMonth', sd.month_income, sd.month_opex, sd.month_drawing, sd.month_op_profit, sd.cat_breakdown, true);
+      renderPnL('pnlYear', sd.year_income, sd.year_opex, sd.year_drawing, sd.year_op_profit, sd.cat_breakdown, false);
+      renderRevenueChart(sd.monthly);
+      renderRoomsChart(sd.monthly);
+      document.getElementById('chartBadge').textContent=sd.monthly.length+' months';
+      // Cash position  -  from server (reads ALL entries in file)
+      const cashNet = sd.cash_in_hand;
+      const onlineNet = sd.cash_in_account;
+      const chEl = document.getElementById('cashInHand');
+      chEl.textContent = fmt(Math.abs(cashNet));
+      chEl.className = 'scard-val ' + (cashNet >= 0 ? 'pos' : 'neg');
+      const caEl = document.getElementById('cashInAccount');
+      caEl.textContent = fmt(Math.abs(onlineNet));
+      caEl.style.color = onlineNet >= 0 ? 'var(--blue)' : 'var(--red)';
+
+      document.getElementById('statusDot').className='status-dot connected';
+      document.getElementById('statusText').textContent='Connected to Excel';
+    }
+  } catch(e) {
+    document.getElementById('statusText').textContent='Offline';
+    document.getElementById('ledgerBody').innerHTML='<tr class="empty-row"><td colspan="8" style="color:var(--red);">Cannot connect  -  make sure app.py is running.</td></tr>';
+  }
+}
+
+const fmt=n=>{if(!n&&n!==0)return' - ';const a=Math.abs(n),p=n<0?'-':'';return a>=100000?p+'Rs.'+(a/100000).toFixed(2)+'L':a>=1000?p+'Rs.'+(a/1000).toFixed(1)+'K':p+'Rs.'+Math.round(a);};
+const fmtFull=n=>n?'Rs.'+Math.abs(n).toLocaleString('en-IN'):'Rs.0';
+const fmtDate=d=>!d?' - ':new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});
+const monthLbl=m=>{const[y,mo]=m.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+mo-1]+' '+y.slice(2);};
+const modeClass=m=>{if(!m)return'';const ml=m.toLowerCase();return ml.includes('cash')&&ml.includes('online')?'mode-mixed':ml.includes('online')||ml.includes('gpay')||ml.includes('upi')?'mode-online':ml.includes('cash')?'mode-cash':'mode-mixed';};
+const catClass=c=>{if(!c)return'cat-tag';if(['Room Income','Other Income','Opening Balance'].includes(c))return'cat-tag cat-income';if(['Owner Drawing','Manager Commission'].includes(c))return'cat-tag cat-drawing';return'cat-tag';};
+
+function renderPnL(elId, income, opex, drawing, op_profit, catBreakdown, isMonth) {
+  const opexCats = ['Staff Salary','Salary Advance','Staff Payment','Electricity','Water','Telecom','Laundry','Cleaning','Maintenance','Linen','Pooja','Operations','Other'];
+  let rows = `
+    <div class="pnl-row"><span class="pnl-label head">Income</span></div>
+    <div class="pnl-row"><span class="pnl-label sub">Room Bookings</span><span class="pnl-amount inc">${fmtFull(income)}</span></div>
+    <div class="pnl-row total"><span class="pnl-label">Total Revenue</span><span class="pnl-amount inc">${fmtFull(income)}</span></div>
+    <div class="pnl-row" style="margin-top:8px;"><span class="pnl-label head">Operating Expenses</span></div>`;
+
+  let hasExpense = false;
+  opexCats.forEach(cat => {
+    const val = catBreakdown[cat];
+    if(val && val > 0) {
+      rows += `<div class="pnl-row"><span class="pnl-label sub">${cat}</span><span class="pnl-amount exp">Rs.${val.toLocaleString('en-IN')}</span></div>`;
+      hasExpense = true;
+    }
+  });
+  if(!hasExpense) rows += `<div class="pnl-row"><span class="pnl-label sub" style="color:var(--ink-3);">No expenses recorded</span><span class="pnl-amount"> - </span></div>`;
+
+  rows += `<div class="pnl-row total"><span class="pnl-label">Total Opex</span><span class="pnl-amount exp">${fmtFull(opex)}</span></div>`;
+
+  const profClass = op_profit >= 0 ? 'prf' : 'neg';
+  rows += `<div class="pnl-row profit"><span class="pnl-label" style="font-weight:600;color:var(--green);">Operating Profit</span><span class="pnl-amount ${profClass}">${fmtFull(op_profit)}</span></div>`;
+
+  if(drawing > 0) {
+    rows += `<div class="pnl-row drawing" style="margin-top:8px;"><span class="pnl-label" style="color:var(--saffron-dark);font-weight:500;">Your Withdrawal (Drawing)</span><span class="pnl-amount drw">${fmtFull(drawing)}</span></div>`;
+    const remaining = op_profit - drawing;
+    rows += `<div class="pnl-row" style="padding-top:8px;"><span class="pnl-label" style="font-weight:500;">Remaining in Business</span><span class="pnl-amount ${remaining>=0?'prf':'neg'}">${fmtFull(remaining)}</span></div>`;
+  }
+
+  document.getElementById(elId).innerHTML = rows;
+}
+
+function renderTable(txns) {
+  const tb=document.getElementById('ledgerBody');
+  if(!txns.length){tb.innerHTML='<tr class="empty-row"><td colspan="8">No entries found</td></tr>';return;}
+  tb.innerHTML=[...txns].reverse().map(t=>`<tr>
+    <td style="color:var(--ink-3);white-space:nowrap;font-size:12px;">${fmtDate(t.date)}</td>
+    <td style="max-width:180px;">${t.description}</td>
+    <td><span class="${catClass(t.category)}">${t.category||' - '}</span></td>
+    <td>${t.income?`<span class="amount-income">+Rs.${Number(t.income).toLocaleString('en-IN')}</span>`:' - '}</td>
+    <td>${t.expense?`<span class="amount-expense">Rs.${Number(t.expense).toLocaleString('en-IN')}</span>`:' - '}</td>
+    <td>${t.mode?`<span class="mode-badge ${modeClass(t.mode)}">${t.mode}</span>`:' - '}</td>
+    <td>${t.room?`<span class="room-tag">${t.room}</span>`:' - '}</td>
+    <td>${t.count?`<span class="count-tag">${t.count}</span>`:' - '}</td>
+  </tr>`).join('');
+}
+
+async function openExcel(){
+  try{
+    const r=await Promise.resolve({json:()=>({success:true})});
+    const d=await r.json();
+    if(!d.success) alert('Could not open Excel: '+d.error);
+  }catch(e){alert('Could not reach server.');}
+}
+
+const isCash = m => m && m.toLowerCase().includes('cash') && !m.toLowerCase().includes('online');
+const isOnline = m => m && (m.toLowerCase().includes('online') || m.toLowerCase().includes('upi') || m.toLowerCase().includes('gpay'));
+
+//  MONTH PAGINATION 
+let activeMonth = 'all';
+
+function buildMonthTabs(txns) {
+  const months = [...new Set(txns.map(t => t.month).filter(Boolean))].sort().reverse();
+  const tabs = document.getElementById('monthTabs');
+  tabs.innerHTML = `<button class="month-tab all ${activeMonth==='all'?'active':''}" onclick="setMonth('all')">All</button>` +
+    months.map(m => {
+      const [y,mo] = m.split('-');
+      const label = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+mo-1]+' '+y.slice(2);
+      return `<button class="month-tab ${activeMonth===m?'active':''}" onclick="setMonth('${m}')">${label}</button>`;
+    }).join('');
+}
+
+function setMonth(month) {
+  activeMonth = month;
+  // Update tab styles
+  document.querySelectorAll('.month-tab').forEach(t => {
+    t.classList.remove('active');
+    if((month==='all' && t.classList.contains('all')) || t.textContent===monthLblFromKey(month)) t.classList.add('active');
+  });
+  const filtered = month === 'all' ? allTxns : allTxns.filter(t => t.month === month);
+  renderTable(filtered);
+}
+
+function monthLblFromKey(m) {
+  if(!m||m==='all') return '';
+  const [y,mo] = m.split('-');
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+mo-1]+' '+y.slice(2);
+}
+
+function filterTable(q) {
+  const base = activeMonth==='all' ? allTxns : allTxns.filter(t=>t.month===activeMonth);
+  renderTable(base.filter(t=>t.description.toLowerCase().includes(q.toLowerCase())||(t.date&&t.date.includes(q))||(t.category&&t.category.toLowerCase().includes(q.toLowerCase()))));
+}
+
+//  SHARE / EXPORT 
+function openShareModal() {
+  // Set modal description based on active month
+  const desc = activeMonth === 'all'
+    ? 'Exporting full year dashboard. Switch to a month tab first to export a specific month.'
+    : `Exporting <strong>${monthLblFromKey(activeMonth)}</strong> report.`;
+  document.getElementById('shareModalDesc').innerHTML = desc;
+  document.getElementById('shareModal').classList.add('show');
+}
+
+function closeShareModal() {
+  document.getElementById('shareModal').classList.remove('show');
+  document.getElementById('shareProgress').style.display = 'none';
+  document.getElementById('shareModalBtns').style.display = 'flex';
+}
+
+async function shareAs(type) {
+  document.getElementById('shareModalBtns').style.display = 'none';
+  document.getElementById('shareProgress').style.display = 'block';
+
+  // Scroll to top so capture starts from header
+  window.scrollTo(0,0);
+  await new Promise(r => setTimeout(r, 400));
+
+  const monthLabel = activeMonth === 'all' ? 'Full Year 2026-27' : monthLblFromKey(activeMonth);
+  const filename = `Panjamugam_${monthLabel.replace(' ','_')}`;
+
+  if(type === 'html') { closeShareModal(); await shareAsHTML(); return; }
+
+  try {
+    // Hide modal before capturing
+    const modal = document.getElementById('shareModal');
+    modal.classList.remove('show');
+    await new Promise(r => setTimeout(r, 200)); // wait for modal to hide
+
+    const canvas = await html2canvas(document.body, {
+      scale: 1.5,
+      useCORS: true,
+      backgroundColor: '#FDFAF6',
+      scrollY: 0,
+      windowHeight: document.body.scrollHeight,
+      height: document.body.scrollHeight
+    });
+
+    if(type === 'image') {
+      const link = document.createElement('a');
+      link.download = filename + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } else {
+      const { jsPDF } = window.jspdf;
+      const imgData = canvas.toDataURL('image/png');
+      const pageW = 210, pageH = 297; // A4 mm
+      const imgW = pageW;
+      const imgH = (canvas.height * imgW) / canvas.width;
+      const pdf = new jsPDF({ orientation: imgH > pageW ? 'p' : 'l', unit: 'mm', format: 'a4' });
+      let y = 0;
+      const pageHeightPx = (pageH * canvas.width) / pageW;
+      let page = 0;
+      while(y < canvas.height) {
+        if(page > 0) pdf.addPage();
+        const sliceH = Math.min(pageHeightPx, canvas.height - y);
+        const sliceCanvas = document.createElement('canvas');
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = sliceH;
+        sliceCanvas.getContext('2d').drawImage(canvas, 0, y, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', 0, 0, pageW, (sliceH * pageW) / canvas.width);
+        y += pageHeightPx;
+        page++;
+      }
+      pdf.save(filename + '.pdf');
+    }
+  } catch(e) {
+    alert('Export failed: ' + e.message);
+  }
+  closeShareModal();
+}
+
+async function shareAsHTML() {
+  const monthLabel = activeMonth === 'all' ? 'Full Year 2026-27' : monthLblFromKey(activeMonth);
+  const filename = 'Panjamugam_' + monthLabel.replace(' ','_') + '.html';
+
+  // Get filtered transactions for the selected month
+  const filtered = activeMonth === 'all' ? allTxns : allTxns.filter(t => t.month === activeMonth);
+
+  // Build a standalone HTML report
+  const rows = [...filtered].reverse().map(t => {
+    const inc = t.income ? '+Rs.' + Number(t.income).toLocaleString('en-IN') : '-';
+    const exp = t.expense ? '-Rs.' + Number(t.expense).toLocaleString('en-IN') : '-';
+    return '<tr><td>' + (t.date||'') + '</td><td>' + t.description + '</td><td>' + (t.category||'-') + '</td><td style="color:green;">' + inc + '</td><td style="color:red;">' + exp + '</td><td>' + (t.mode||'-') + '</td><td>' + (t.room||'-') + '</td></tr>';
+  }).join('');
+
+  const totalInc = filtered.filter(t=>t.income).reduce((s,t)=>s+t.income,0);
+  const totalExp = filtered.filter(t=>t.expense).reduce((s,t)=>s+t.expense,0);
+  const net = totalInc - totalExp;
+
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Panjamugam Residency - ' + monthLabel + '</title>' +
+    '<style>body{font-family:Arial,sans-serif;padding:2rem;color:#1A1208;background:#FDFAF6;}' +
+    'h1{font-size:24px;margin-bottom:4px;}' +
+    '.sub{color:#6B5640;font-size:14px;margin-bottom:2rem;}' +
+    '.summary{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}' +
+    '.scard{background:#fff;border:1px solid #D8CCBB;border-radius:8px;padding:1rem 1.5rem;min-width:150px;}' +
+    '.scard-label{font-size:11px;text-transform:uppercase;color:#6B5640;font-weight:700;letter-spacing:0.05em;margin-bottom:4px;}' +
+    '.scard-val{font-size:22px;font-weight:700;font-family:monospace;}' +
+    '.pos{color:#1E7A4A;}.neg{color:#C0392B;}.orf{color:#E8610A;}' +
+    'table{width:100%;border-collapse:collapse;font-size:13px;}' +
+    'th{background:#F5EFE6;padding:9px 12px;text-align:left;font-size:11px;text-transform:uppercase;color:#6B5640;letter-spacing:0.05em;}' +
+    'td{padding:9px 12px;border-bottom:1px solid #EDE4D8;}' +
+    'tr:hover{background:#F5EFE6;}' +
+    '.footer{margin-top:2rem;font-size:12px;color:#6B5640;text-align:center;}' +
+    '</style></head><body>' +
+    '<h1>Panjamugam Residency</h1>' +
+    '<div class="sub">Report: ' + monthLabel + ' &nbsp;|&nbsp; Generated: ' + new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) + '</div>' +
+    '<div class="summary">' +
+    '<div class="scard"><div class="scard-label">Total Income</div><div class="scard-val pos">Rs.' + Math.round(totalInc).toLocaleString('en-IN') + '</div></div>' +
+    '<div class="scard"><div class="scard-label">Total Expenses</div><div class="scard-val neg">Rs.' + Math.round(totalExp).toLocaleString('en-IN') + '</div></div>' +
+    '<div class="scard"><div class="scard-label">Net Profit</div><div class="scard-val ' + (net>=0?'pos':'neg') + '">Rs.' + Math.round(Math.abs(net)).toLocaleString('en-IN') + '</div></div>' +
+    '</div>' +
+    '<table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Income</th><th>Expense</th><th>Mode</th><th>Room</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>' +
+    '<div class="footer">Panjamugam Residency, Tiruvannamalai &nbsp;|&nbsp; ' + filtered.length + ' entries</div>' +
+    '</body></html>';
+
+  // Download
+  const blob = new Blob([html], {type: 'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderRevenueChart(monthly){
+  if(rChart)rChart.destroy();
+  rChart=new Chart(document.getElementById('revenueChart'),{type:'bar',data:{labels:monthly.map(m=>monthLbl(m.month)),datasets:[{label:'Income',data:monthly.map(m=>m.income),backgroundColor:'#1E7A4A',borderRadius:4},{label:'Expenses',data:monthly.map(m=>m.opex),backgroundColor:'#C0392B',borderRadius:4},{label:'Net',data:monthly.map(m=>m.op_profit),type:'line',borderColor:'#E8610A',backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:'#E8610A',pointRadius:4,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},color:'#6B5640'},grid:{display:false}},y:{ticks:{callback:v=>'Rs.'+(v>=1000?Math.round(v/1000)+'K':v),font:{size:10},color:'#6B5640'}}}}});
+}
+
+function renderRoomsChart(monthly){
+  if(roomChart)roomChart.destroy();
+  roomChart=new Chart(document.getElementById('roomsChart'),{type:'bar',data:{labels:monthly.map(m=>monthLbl(m.month)),datasets:[{label:'Rooms',data:monthly.map(m=>m.rooms),backgroundColor:'#C8860A',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11},color:'#6B5640'},grid:{display:false}},y:{ticks:{stepSize:10,font:{size:11},color:'#6B5640'}}}}});
+}
+</script>
+</body>
+</html>
