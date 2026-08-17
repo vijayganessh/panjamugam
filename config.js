@@ -4,7 +4,7 @@
 // ============================================================
 
 var CONFIG = {
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxLsVlLMa-jILUK9gF2_4ZvDOoRdaMSJNDqq74fass-8dgjjfIlIjKDRPxksA9KyFiB/exec',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxnhD9nfFUfadvqiEJ2H8efM6hohh7yoV1DpI0g0RnOOAvP-xrjgxAFmg7Z-eq--Ib3/exec',
   SHEET_ID: '1_Qn6kmC_gPpRT7XWG929C-ZgIdnQkEVWS-F2EaM1KeE'
 };
 
