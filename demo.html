@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panjamugam Residency — How to Use</title>
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --saffron:#E8610A;--saffron-light:#FFF0E8;--saffron-dark:#B84A06;
+    --gold:#C8860A;--gold-light:#FFF8E1;
+    --ink:#1A1208;--ink-2:#3D2E1A;--ink-3:#6B5640;
+    --stone:#F5EFE6;--stone-2:#EDE4D8;--stone-3:#D8CCBB;
+    --cream:#FDFAF6;--green:#1E7A4A;--green-light:#E8F5EE;
+    --red:#C0392B;--red-light:#FDEEEC;--radius:12px;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+  header{background:var(--ink);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+  .logo{display:flex;align-items:center;gap:12px;}
+  .logo-icon{width:36px;height:36px;background:var(--saffron);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:18px;color:#fff;}
+  .logo-text{font-family:Georgia,serif;font-size:17px;color:#fff;line-height:1.2;}
+  .logo-sub{font-size:11px;font-weight:300;color:#888;display:block;}
+  .nav-links{display:flex;gap:4px;}
+  .nav-link{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;color:#aaa;text-decoration:none;transition:all 0.15s;border:1px solid transparent;}
+  .nav-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .nav-link.active{color:#fff;background:var(--saffron);border-color:var(--saffron-dark);}
+
+  .page{max-width:860px;margin:0 auto;padding:2rem;}
+  .hero{background:var(--ink);border-radius:var(--radius);padding:2.5rem;margin-bottom:2rem;color:#fff;text-align:center;}
+  .hero h1{font-family:Georgia,serif;font-size:32px;font-weight:400;margin-bottom:8px;}
+  .hero p{font-size:15px;color:#aaa;max-width:500px;margin:0 auto;}
+
+  /* STEPS */
+  .step-section{margin-bottom:2.5rem;}
+  .step-section-title{font-family:Georgia,serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;}
+  .step-section-title span{width:32px;height:32px;background:var(--saffron);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;flex-shrink:0;}
+
+  .step-card{background:#fff;border:1px solid var(--stone-3);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem;}
+  .step-head{padding:1rem 1.25rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.15s;}
+  .step-head:hover{background:var(--stone);}
+  .step-num{width:28px;height:28px;border-radius:50%;background:var(--saffron);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+  .step-title{font-size:15px;font-weight:600;color:var(--ink);flex:1;}
+  .step-arrow{font-size:12px;color:var(--ink-3);transition:transform 0.2s;}
+  .step-body{display:none;padding:0 1.25rem 1.25rem 1.25rem;border-top:1px solid var(--stone-2);}
+  .step-body.open{display:block;}
+
+  /* MOCK UI */
+  .mock{background:var(--stone);border-radius:10px;padding:1.25rem;margin:1rem 0;border:1px solid var(--stone-3);}
+  .mock-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;}
+  .mock-type-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+  .mock-type{border:2px solid var(--stone-3);border-radius:8px;padding:12px;text-align:center;background:#fff;font-size:13px;font-weight:600;cursor:default;}
+  .mock-type.active{border-color:var(--green);background:var(--green);color:#fff;}
+  .mock-type.active-exp{border-color:var(--red);background:var(--red);color:#fff;}
+  .mock-field{background:#fff;border:1.5px solid var(--stone-3);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink-3);margin-bottom:8px;}
+  .mock-field.filled{color:var(--ink);border-color:var(--saffron);}
+  .mock-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;}
+  .mock-cat{border:1.5px solid var(--stone-3);border-radius:6px;padding:7px;text-align:center;font-size:11px;background:#fff;color:var(--ink-3);}
+  .mock-cat.selected{border-color:var(--saffron);background:var(--saffron);color:#fff;}
+  .mock-cat.selected-green{border-color:var(--green);background:var(--green);color:#fff;}
+  .mock-room-row{display:flex;gap:6px;margin-bottom:10px;}
+  .mock-room{border:1.5px solid var(--stone-3);border-radius:6px;padding:8px 10px;font-size:13px;font-weight:600;background:#fff;font-family:'Courier New',monospace;}
+  .mock-room.selected{border-color:var(--saffron);background:var(--saffron);color:#fff;}
+  .mock-btn{width:100%;padding:12px;border-radius:8px;text-align:center;font-weight:600;font-size:14px;color:#fff;margin-top:4px;}
+  .mock-btn.green{background:var(--green);}
+  .mock-btn.red{background:var(--red);}
+  .mock-btn.saffron{background:var(--saffron);}
+
+  /* CATEGORIES TABLE */
+  .cat-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:13px;}
+  .cat-table th{padding:9px 12px;background:var(--stone);text-align:left;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);}
+  .cat-table td{padding:10px 12px;border-bottom:1px solid var(--stone-2);color:var(--ink-2);}
+  .cat-table tr:last-child td{border-bottom:none;}
+  .cat-tag{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+  .cat-income{background:var(--green-light);color:var(--green);}
+  .cat-opex{background:#E8F0FE;color:#1A73E8;}
+  .cat-drawing{background:var(--saffron-light);color:var(--saffron-dark);}
+
+  /* TIPS */
+  .tip{background:var(--gold-light);border-left:4px solid var(--gold);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1rem 0;font-size:13px;color:var(--ink-2);line-height:1.6;}
+  .tip strong{color:var(--gold);}
+  .warn{background:var(--red-light);border-left:4px solid var(--red);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1rem 0;font-size:13px;color:var(--ink-2);line-height:1.6;}
+  .warn strong{color:var(--red);}
+  .good{background:var(--green-light);border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1rem 0;font-size:13px;color:var(--ink-2);line-height:1.6;}
+  .good strong{color:var(--green);}
+
+  /* CTA */
+  .cta{background:var(--saffron);color:#fff;border-radius:var(--radius);padding:2rem;text-align:center;margin-top:2rem;}
+  .cta h2{font-family:Georgia,serif;font-size:24px;font-weight:400;margin-bottom:8px;}
+  .cta p{font-size:14px;opacity:0.9;margin-bottom:1.25rem;}
+  .cta-btn{display:inline-block;background:#fff;color:var(--saffron);padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;font-size:15px;transition:all 0.15s;}
+  .cta-btn:hover{opacity:0.92;transform:translateY(-1px);}
+
+  @media(max-width:600px){.page{padding:1rem;}header{padding:0 1rem;}.nav-links{display:none;}.mock-cat-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">PR</div>
+    <div class="logo-text">Panjamugam Residency<span class="logo-sub">2026–27 Accounts</span></div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="/">Rooms</a>
+    <a class="nav-link" href="/dashboard">Dashboard</a>
+    <a class="nav-link" href="/entry">New Entry</a>
+    <a class="nav-link active" href="/demo">How to Use</a>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="hero">
+    <h1>How to Add Entries</h1>
+    <p>A simple step-by-step guide for the manager and staff to record income and expenses correctly.</p>
+  </div>
+
+  <!-- WHAT IS WHAT -->
+  <div class="step-section">
+    <div class="step-section-title"><span>A</span> Understanding Categories</div>
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">1</div>
+        <div class="step-title">What category should I pick?</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body open">
+        <table class="cat-table">
+          <thead><tr><th>Category</th><th>Type</th><th>When to use</th></tr></thead>
+          <tbody>
+            <tr><td><span class="cat-tag cat-income">Room Income</span></td><td>Income</td><td>Every room booking, refresh, bath, advance payment</td></tr>
+            <tr><td><span class="cat-tag cat-income">Other Income</span></td><td>Income</td><td>Any other money received (not room related)</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Staff Salary</span></td><td>Expense</td><td>Fixed monthly salary paid to any staff</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Staff Payment</span></td><td>Expense</td><td>Daily bata, small payments to staff (₹50–₹200)</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Salary Advance</span></td><td>Expense</td><td>Advance given to staff before salary day</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Manager Commission</span></td><td>Expense</td><td>10% of monthly income paid to manager</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Electricity</span></td><td>Expense</td><td>EB bill payments</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Water</span></td><td>Expense</td><td>Water can, water tank refill</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Telecom</span></td><td>Expense</td><td>Jio recharge, cable TV, WiFi bills</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Laundry</span></td><td>Expense</td><td>Dhobi, dry cleaning charges</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Cleaning</span></td><td>Expense</td><td>Phenol, Harpic, cleaning materials, room spray</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Maintenance</span></td><td>Expense</td><td>Electrician, carpenter, plumber, repairs</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Linen</span></td><td>Expense</td><td>Bed sheets, pillow covers, towels</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Pooja</span></td><td>Expense</td><td>Vathi, deepam oil, flowers, pooja items</td></tr>
+            <tr><td><span class="cat-tag cat-opex">Operations</span></td><td>Expense</td><td>Any other running cost of the lodge</td></tr>
+            <tr><td><span class="cat-tag cat-drawing">Owner Drawing</span></td><td>Expense</td><td>When owner withdraws profit from the business</td></tr>
+          </tbody>
+        </table>
+        <div class="tip"><strong>Important:</strong> Owner Drawing is NOT a business expense — it is the owner taking their profit. It is kept separate so that the real business profit is always visible correctly.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO ADD ROOM BOOKING -->
+  <div class="step-section">
+    <div class="step-section-title"><span>B</span> Adding a Room Booking (Income)</div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">1</div>
+        <div class="step-title">Go to New Entry page</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body open">
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.7;">Click <strong>New Entry</strong> in the top navigation bar, or click the orange <strong>+ New Entry</strong> button on the dashboard.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">2</div>
+        <div class="step-title">Select "Income"</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body">
+        <div class="mock">
+          <div class="mock-label">Step 2 — Tap Income</div>
+          <div class="mock-type-row">
+            <div class="mock-type active">💰 Income</div>
+            <div class="mock-type">💸 Expense</div>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--ink-2);">Always select <strong>Income</strong> for room bookings, refresh, and bath charges.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">3</div>
+        <div class="step-title">Select Category → "Room Income"</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body">
+        <div class="mock">
+          <div class="mock-label">Step 3 — Category</div>
+          <div class="mock-cat-grid">
+            <div class="mock-cat selected-green">🛏 Room Income</div>
+            <div class="mock-cat">💼 Other Income</div>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--ink-2);">Room Income is already selected by default for income entries.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">4</div>
+        <div class="step-title">Fill Date, Amount, Description</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body">
+        <div class="mock">
+          <div class="mock-label">Step 4 — Fill details</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <div class="mock-field filled">📅 08 May 2026</div>
+            <div class="mock-field filled">₹ 1,200</div>
+          </div>
+          <div class="mock-field">Quick pick: <span style="background:var(--stone-2);padding:2px 8px;border-radius:4px;font-size:12px;">AC Room</span> <span style="background:var(--stone-2);padding:2px 8px;border-radius:4px;font-size:12px;">Non AC Room</span> <span style="background:var(--stone-2);padding:2px 8px;border-radius:4px;font-size:12px;">Refresh</span></div>
+          <div class="mock-field filled">Room Book - AC</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="mock-field filled">Online</div>
+            <div class="mock-field">2 nights stay (optional)</div>
+          </div>
+        </div>
+        <div class="tip"><strong>Tip:</strong> Use the quick pick buttons to fill the description faster. Just tap "AC Room" or "Non AC Room" and the text fills automatically.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">5</div>
+        <div class="step-title">Select Room Number</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body">
+        <div class="mock">
+          <div class="mock-label">Step 5 — Tap room number</div>
+          <div class="mock-room-row">
+            <div class="mock-room">101</div>
+            <div class="mock-room selected">102</div>
+            <div class="mock-room">103</div>
+            <div class="mock-room">104</div>
+            <div class="mock-room">105</div>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--ink-2);">Tap the room number that was booked. For multiple rooms, tap all of them — they will all be highlighted.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">6</div>
+        <div class="step-title">Tap "Save Income Entry"</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body">
+        <div class="mock">
+          <div class="mock-btn green">Save Income Entry</div>
+        </div>
+        <div class="good"><strong>Done!</strong> A green success message will appear. The entry is now saved in Excel automatically.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO ADD EXPENSE -->
+  <div class="step-section">
+    <div class="step-section-title"><span>C</span> Adding an Expense</div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">1</div>
+        <div class="step-title">Select "Expense" → Pick the right category</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body">
+        <div class="mock">
+          <div class="mock-label">Example — EB Bill payment</div>
+          <div class="mock-type-row">
+            <div class="mock-type">💰 Income</div>
+            <div class="mock-type active-exp">💸 Expense</div>
+          </div>
+          <div class="mock-cat-grid">
+            <div class="mock-cat">👤 Staff Salary</div>
+            <div class="mock-cat">📊 Mgr Commission</div>
+            <div class="mock-cat">💵 Staff Payment</div>
+            <div class="mock-cat selected">⚡ Electricity</div>
+            <div class="mock-cat">💧 Water</div>
+            <div class="mock-cat">📡 Telecom</div>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.7;">Select <strong>Expense</strong> first, then tap the correct category. For EB Bill → tap <strong>Electricity</strong>. For paying Mr Krishnan daily bata → tap <strong>Staff Payment</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">2</div>
+        <div class="step-title">How to record Owner Drawing (your monthly profit withdrawal)</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body">
+        <div class="mock">
+          <div class="mock-label">Example — Owner taking ₹30,000 profit</div>
+          <div class="mock-type-row">
+            <div class="mock-type">💰 Income</div>
+            <div class="mock-type active-exp">💸 Expense</div>
+          </div>
+          <div class="mock-cat-grid">
+            <div class="mock-cat" style="border-color:var(--saffron);background:var(--saffron-light);color:var(--saffron-dark);">💰 Owner Drawing</div>
+          </div>
+          <div class="mock-field filled">₹ 30,000</div>
+          <div class="mock-field filled">To Vijay</div>
+          <div class="mock-field filled">Online</div>
+        </div>
+        <div class="tip"><strong>Key point:</strong> Always use "Owner Drawing" when the owner takes money out. This keeps the business profit calculation clean — the dashboard will show operating profit <em>before</em> drawing separately.</div>
+        <div class="warn"><strong>Do NOT use "Operations" or "Other" for owner withdrawals.</strong> This will mix up the profit numbers and make accounts confusing.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">3</div>
+        <div class="step-title">How to record Manager Commission (10%)</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body">
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.7;margin-bottom:1rem;">At the end of each month, calculate 10% of that month's total room income and record it as:</p>
+        <div class="mock">
+          <div class="mock-label">Example — May 2026 commission</div>
+          <div class="mock-type-row">
+            <div class="mock-type">💰 Income</div>
+            <div class="mock-type active-exp">💸 Expense</div>
+          </div>
+          <div class="mock-cat-grid">
+            <div class="mock-cat selected">📊 Mgr Commission</div>
+          </div>
+          <div class="mock-field filled">₹ 8,310 &nbsp;<span style="font-size:11px;color:var(--ink-3);">(10% of ₹83,100)</span></div>
+          <div class="mock-field filled">Manager Commission 10%</div>
+        </div>
+        <div class="tip"><strong>Tip:</strong> The dashboard shows total room income for the month — use that number to calculate 10% quickly.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMON MISTAKES -->
+  <div class="step-section">
+    <div class="step-section-title"><span>D</span> Common Mistakes to Avoid</div>
+    <div class="step-card">
+      <div class="step-head" onclick="toggle(this)">
+        <div class="step-num">!</div>
+        <div class="step-title">Things to always remember</div>
+        <span class="step-arrow">▼</span>
+      </div>
+      <div class="step-body open">
+        <div class="warn"><strong>❌ Wrong:</strong> Recording owner withdrawal as "Operations" or "Other"<br><strong>✅ Correct:</strong> Always use "Owner Drawing"</div>
+        <div class="warn"><strong>❌ Wrong:</strong> Forgetting to select the room number for bookings<br><strong>✅ Correct:</strong> Always tap the room number — it helps track occupancy</div>
+        <div class="warn"><strong>❌ Wrong:</strong> Leaving the category blank<br><strong>✅ Correct:</strong> Always pick a category — it keeps the P&L report accurate</div>
+        <div class="good"><strong>✅ Good habit:</strong> Enter every transaction the same day it happens — don't wait till the end of the week.</div>
+        <div class="good"><strong>✅ Good habit:</strong> Check the Dashboard at the end of each day to make sure the numbers look correct.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta">
+    <h2>Ready to add an entry?</h2>
+    <p>Go to the New Entry page and try it now. It takes less than 30 seconds per entry.</p>
+    <a class="cta-btn" href="/entry">+ New Entry</a>
+  </div>
+
+</div>
+
+<script>
+function toggle(head){
+  const body=head.nextElementSibling;
+  const arrow=head.querySelector('.step-arrow');
+  if(body.classList.contains('open')){body.classList.remove('open');arrow.style.transform='rotate(0deg)';}
+  else{body.classList.add('open');arrow.style.transform='rotate(180deg)';}
+}
+// Auto-rotate arrows for open items
+document.querySelectorAll('.step-body.open').forEach(b=>{
+  b.previousElementSibling.querySelector('.step-arrow').style.transform='rotate(180deg)';
+});
+</script>
+</body>
+</html>
