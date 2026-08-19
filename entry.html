@@ -1,6 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="config.js?v=3"></script>
+<script>
+var CONFIG = {
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxnhD9nfFUfadvqiEJ2H8efM6hohh7yoV1DpI0g0RnOOAvP-xrjgxAFmg7Z-eq--Ib3/exec'
+};
+function apiGet(action, params) {
+  params = params || {};
+  params.action = action;
+  var cbName = 'cb_' + action + '_' + Date.now();
+  params.callback = cbName;
+  return new Promise(function(resolve, reject) {
+    var timer = setTimeout(function() {
+      delete window[cbName];
+      reject(new Error('Timeout'));
+    }, 15000);
+    window[cbName] = function(data) {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (sc.parentNode) sc.parentNode.removeChild(sc);
+      resolve(data);
+    };
+    var url = CONFIG.SCRIPT_URL + '?' + Object.keys(params).map(function(k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }).join('&');
+    var sc = document.createElement('script');
+    sc.src = url;
+    sc.onerror = function() { clearTimeout(timer); delete window[cbName]; reject(new Error('Load error')); };
+    document.head.appendChild(sc);
+  });
+}
+async function apiPost(action, data) {
+  data = data || {};
+  data.action = action;
+  data.callback = 'cb_post_' + Date.now();
+  return new Promise(function(resolve, reject) {
+    var cbName = data.callback;
+    var timer = setTimeout(function() { delete window[cbName]; reject(new Error('Timeout')); }, 15000);
+    window[cbName] = function(d) { clearTimeout(timer); delete window[cbName]; if(sc.parentNode) sc.parentNode.removeChild(sc); resolve(d); };
+    var url = CONFIG.SCRIPT_URL + '?' + Object.keys(data).map(function(k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(typeof data[k] === 'object' ? JSON.stringify(data[k]) : data[k]);
+    }).join('&');
+    var sc = document.createElement('script');
+    sc.src = url;
+    sc.onerror = function() { clearTimeout(timer); delete window[cbName]; reject(new Error('Load error')); };
+    document.head.appendChild(sc);
+  });
+}
+</script>
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -118,7 +166,6 @@
   .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1E7A4A;color:#fff;padding:14px 24px;border-radius:50px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.2);}
   .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 </style>
-<script src="config.js?v=2"></script>
 </head>
 <body>
 <header>

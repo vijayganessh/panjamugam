@@ -1,6 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="config.js?v=3"></script>
+<script>
+var CONFIG = {
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxnhD9nfFUfadvqiEJ2H8efM6hohh7yoV1DpI0g0RnOOAvP-xrjgxAFmg7Z-eq--Ib3/exec'
+};
+function apiGet(action, params) {
+  params = params || {};
+  params.action = action;
+  var cbName = 'cb_' + action + '_' + Date.now();
+  params.callback = cbName;
+  return new Promise(function(resolve, reject) {
+    var timer = setTimeout(function() {
+      delete window[cbName];
+      reject(new Error('Timeout'));
+    }, 15000);
+    window[cbName] = function(data) {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (sc.parentNode) sc.parentNode.removeChild(sc);
+      resolve(data);
+    };
+    var url = CONFIG.SCRIPT_URL + '?' + Object.keys(params).map(function(k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }).join('&');
+    var sc = document.createElement('script');
+    sc.src = url;
+    sc.onerror = function() { clearTimeout(timer); delete window[cbName]; reject(new Error('Load error')); };
+    document.head.appendChild(sc);
+  });
+}
+async function apiPost(action, data) {
+  data = data || {};
+  data.action = action;
+  data.callback = 'cb_post_' + Date.now();
+  return new Promise(function(resolve, reject) {
+    var cbName = data.callback;
+    var timer = setTimeout(function() { delete window[cbName]; reject(new Error('Timeout')); }, 15000);
+    window[cbName] = function(d) { clearTimeout(timer); delete window[cbName]; if(sc.parentNode) sc.parentNode.removeChild(sc); resolve(d); };
+    var url = CONFIG.SCRIPT_URL + '?' + Object.keys(data).map(function(k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(typeof data[k] === 'object' ? JSON.stringify(data[k]) : data[k]);
+    }).join('&');
+    var sc = document.createElement('script');
+    sc.src = url;
+    sc.onerror = function() { clearTimeout(timer); delete window[cbName]; reject(new Error('Load error')); };
+    document.head.appendChild(sc);
+  });
+}
+</script>
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -109,7 +157,6 @@
 
   @media(max-width:400px){.room-grid{grid-template-columns:repeat(5,1fr);}.field-row{grid-template-columns:1fr;}}
 </style>
-<script src="config.js?v=2"></script>
 </head>
 <body>
 
