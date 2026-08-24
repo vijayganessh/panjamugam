@@ -1,13 +1,8 @@
-// ============================================================
-// Panjamugam Residency — Configuration
-// ============================================================
-
 var CONFIG = {
   SCRIPT_URL: 'https://panjamugam-api.panjamugamtvm.workers.dev',
   SHEET_ID: '1_Qn6kmC_gPpRT7XWG929C-ZgIdnQkEVWS-F2EaM1KeE'
 };
 
-// API GET - Cloudflare Worker handles CORS
 async function apiGet(action, params) {
   params = params || {};
   params.action = action;
@@ -18,12 +13,10 @@ async function apiGet(action, params) {
     var r = await fetch(url);
     return await r.json();
   } catch(e) {
-    console.error('apiGet error:', action, e);
     return {success: false, error: e.toString()};
   }
 }
 
-// API POST
 async function apiPost(action, data) {
   var url = CONFIG.SCRIPT_URL + '?action=' + action;
   try {
@@ -34,7 +27,6 @@ async function apiPost(action, data) {
     });
     return await r.json();
   } catch(e) {
-    console.error('apiPost error:', action, e);
     return {success: false, error: e.toString()};
   }
 }
