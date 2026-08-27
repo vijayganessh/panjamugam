@@ -385,8 +385,7 @@ function dismissReminder(room) {
 
 async function loadData() {
   try {
-    const [tr,sr] = await Promise.all([apiGet('getTransactions'),apiGet('getSummary')]);
-    const td=await tr.json(), sd=await sr.json();
+    const [td,sd] = await Promise.all([apiGet('getTransactions'),apiGet('getSummary')]);
     if(td.success){allTxns=td.data;renderTable(allTxns);buildMonthTabs(allTxns);}
     if(sd.success){
       const ml=new Date(sd.this_month+'-01').toLocaleString('en-IN',{month:'long',year:'numeric'});
@@ -423,7 +422,7 @@ async function loadData() {
       caEl.style.color = onlineNet >= 0 ? 'var(--blue)' : 'var(--red)';
 
       document.getElementById('statusDot').className='status-dot connected';
-      document.getElementById('statusText').textContent='Connected to Excel';
+      document.getElementById('statusText').textContent='Connected';
     }
   } catch(e) {
     document.getElementById('statusText').textContent='Offline';

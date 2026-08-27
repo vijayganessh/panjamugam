@@ -454,7 +454,6 @@ window.onload = function() { loadRooms(); };
 
 function loadRooms() {
   apiGet('getRooms')
-    .then(function(r){ return r.json(); })
     .then(function(d){
       if(d.success){
         roomsData = d.rooms;
@@ -726,7 +725,6 @@ function coAnswer(stillOccupied) {
   if(!stillOccupied) {
     var guestCo = roomsData[id] ? roomsData[id].guest : null;
     apiPost('updateRoom', {room: id, status: 'available'})
-    .then(function(r){ return r.json(); })
     .then(function(d){
       if(d.success){
         roomsData[id] = d.room;
